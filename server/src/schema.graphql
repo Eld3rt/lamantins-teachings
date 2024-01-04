@@ -1,0 +1,31 @@
+type Query {
+  searchUsers(username: String!): [User]
+}
+
+type Mutation {
+  createUser(input: CreateUserInput): createUserResponse
+}
+
+interface MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+}
+
+type createUserResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  user: User
+}
+
+type User {
+  id: ID
+  username: String
+  email: String
+}
+
+input CreateUserInput {
+  username: String!
+  email: String!
+}
