@@ -1,13 +1,18 @@
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
-  schema: './src/schema.graphql',
+  schema: './src/graphql/schema/*/index.ts',
   generates: {
-    './src/resolvers-types.ts': {
+    './src/graphql/types/resolvers-types.ts': {
+      plugins: ['typescript', 'typescript-resolvers'],
       config: {
         useIndexSignature: true,
+        emitLegacyCommonJSImports: false,
+        contextType: '../../apollo/server#MyContext',
+        mappers: {
+          User: '.prisma/client#User as UserModel',
+        },
       },
-      plugins: ['typescript', 'typescript-resolvers'],
     },
   },
 }
