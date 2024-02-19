@@ -30,6 +30,7 @@ const SignIn: React.FC<Props> = () => {
         },
       })
       console.log(data?.signIn?.existingUser)
+      location.reload()
     } catch (error) {
       setErrMsg((error as ApolloError).message)
       console.log(errMsg)
