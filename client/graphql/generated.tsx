@@ -67,7 +67,6 @@ export type SignUpResponse = MutationResponse & {
   code: Scalars['String']['output'];
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
-  user?: Maybe<User>;
 };
 
 export type UserFragment = { __typename?: 'User', id: number, name: string, email: string };
@@ -87,7 +86,7 @@ export type SignUpMutationVariables = Exact<{
 }>;
 
 
-export type SignUpMutation = { __typename?: 'Mutation', signUp?: { __typename?: 'signUpResponse', code: string, success: boolean, message: string, user?: { __typename?: 'User', id: number, name: string, email: string } | null } | null };
+export type SignUpMutation = { __typename?: 'Mutation', signUp?: { __typename?: 'signUpResponse', code: string, success: boolean, message: string } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -148,11 +147,6 @@ export const SignUpDocument = gql`
     code
     success
     message
-    user {
-      id
-      name
-      email
-    }
   }
 }
     `;

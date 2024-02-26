@@ -7,6 +7,7 @@ const config: CodegenConfig = {
       plugins: ['typescript', 'typescript-resolvers'],
       config: {
         useIndexSignature: true,
+        inputMaybeValue: 'undefined | T',
         emitLegacyCommonJSImports: false,
         contextType: '../../apollo/server#MyContext',
         mappers: {

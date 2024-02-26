@@ -1,4 +1,4 @@
-import { MeQuery, MeDocument } from '@/graphql/types_and_hooks'
+import { MeQuery, MeDocument } from '@/graphql/generated'
 import { getClient } from '@/lib/ApolloClient'
 
 interface Props {}

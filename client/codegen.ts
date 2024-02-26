@@ -4,7 +4,7 @@ const config: CodegenConfig = {
   schema: '../server/src/graphql/schema/*/index.ts',
   documents: ['./**/*.{ts,tsx}'],
   generates: {
-    './graphql/types_and_hooks.tsx': {
+    './graphql/generated.tsx': {
       plugins: ['typescript', 'typescript-operations', 'typescript-react-apollo'],
     },
   },

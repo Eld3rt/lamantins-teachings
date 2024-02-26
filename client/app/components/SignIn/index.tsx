@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Form, Formik, FormikHelpers } from 'formik'
 import { ApolloError } from '@apollo/client'
-import { useSignInMutation } from '@/graphql/types_and_hooks'
+import { useSignInMutation } from '@/graphql/generated'
 import { authValidation } from '@/utils/authValidation'
 import FormInput from '../forms/FormInput'
 

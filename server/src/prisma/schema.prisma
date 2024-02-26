@@ -8,12 +8,12 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(200) @default("")
-  email     String   @unique @db.VarChar(200)
-	passhash  String   @db.VarChar(200) @default("")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  name          String   @default("") @db.VarChar(200)
+  email         String   @unique @db.VarChar(200)
+  passhash      String   @default("") @db.VarChar(200)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("users")
 }

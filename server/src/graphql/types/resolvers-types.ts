@@ -2,7 +2,7 @@ import { GraphQLResolveInfo } from 'graphql';
 import { User as UserModel } from '.prisma/client';
 import { MyContext } from '../../apollo/server';
 export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
+export type InputMaybe<T> = undefined | T;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -21,8 +21,14 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createUser?: Maybe<CreateUserResponse>;
   signIn?: Maybe<SignInResponse>;
   signUp?: Maybe<SignUpResponse>;
+};
+
+
+export type MutationCreateUserArgs = {
+  key: Scalars['String']['input'];
 };
 
 
@@ -56,6 +62,14 @@ export type User = {
   name: Scalars['String']['output'];
 };
 
+export type CreateUserResponse = MutationResponse & {
+  __typename?: 'createUserResponse';
+  code: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+  user?: Maybe<User>;
+};
+
 export type SignInResponse = MutationResponse & {
   __typename?: 'signInResponse';
   code: Scalars['String']['output'];
@@ -69,7 +83,6 @@ export type SignUpResponse = MutationResponse & {
   code: Scalars['String']['output'];
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
-  user?: Maybe<User>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -143,7 +156,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = ResolversObject<{
-  MutationResponse: ( Omit<SignInResponse, 'existingUser'> & { existingUser?: Maybe<RefType['User']> } ) | ( Omit<SignUpResponse, 'user'> & { user?: Maybe<RefType['User']> } );
+  MutationResponse: ( Omit<CreateUserResponse, 'user'> & { user?: Maybe<RefType['User']> } ) | ( Omit<SignInResponse, 'existingUser'> & { existingUser?: Maybe<RefType['User']> } ) | ( SignUpResponse );
 }>;
 
 /** Mapping between all available schema types and the resolvers types */
@@ -155,8 +168,9 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   User: ResolverTypeWrapper<UserModel>;
+  createUserResponse: ResolverTypeWrapper<Omit<CreateUserResponse, 'user'> & { user?: Maybe<ResolversTypes['User']> }>;
   signInResponse: ResolverTypeWrapper<Omit<SignInResponse, 'existingUser'> & { existingUser?: Maybe<ResolversTypes['User']> }>;
-  signUpResponse: ResolverTypeWrapper<Omit<SignUpResponse, 'user'> & { user?: Maybe<ResolversTypes['User']> }>;
+  signUpResponse: ResolverTypeWrapper<SignUpResponse>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -168,17 +182,19 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {};
   String: Scalars['String']['output'];
   User: UserModel;
+  createUserResponse: Omit<CreateUserResponse, 'user'> & { user?: Maybe<ResolversParentTypes['User']> };
   signInResponse: Omit<SignInResponse, 'existingUser'> & { existingUser?: Maybe<ResolversParentTypes['User']> };
-  signUpResponse: Omit<SignUpResponse, 'user'> & { user?: Maybe<ResolversParentTypes['User']> };
+  signUpResponse: SignUpResponse;
 }>;
 
 export type MutationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  createUser?: Resolver<Maybe<ResolversTypes['createUserResponse']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'key'>>;
   signIn?: Resolver<Maybe<ResolversTypes['signInResponse']>, ParentType, ContextType, RequireFields<MutationSignInArgs, 'email' | 'password'>>;
   signUp?: Resolver<Maybe<ResolversTypes['signUpResponse']>, ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'name' | 'password'>>;
 }>;
 
 export type MutationResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['MutationResponse'] = ResolversParentTypes['MutationResponse']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'signInResponse' | 'signUpResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'createUserResponse' | 'signInResponse' | 'signUpResponse', ParentType, ContextType>;
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -195,6 +211,14 @@ export type UserResolvers<ContextType = MyContext, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CreateUserResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['createUserResponse'] = ResolversParentTypes['createUserResponse']> = ResolversObject<{
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SignInResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['signInResponse'] = ResolversParentTypes['signInResponse']> = ResolversObject<{
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   existingUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -207,7 +231,6 @@ export type SignUpResponseResolvers<ContextType = MyContext, ParentType extends 
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -216,6 +239,7 @@ export type Resolvers<ContextType = MyContext> = ResolversObject<{
   MutationResponse?: MutationResponseResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  createUserResponse?: CreateUserResponseResolvers<ContextType>;
   signInResponse?: SignInResponseResolvers<ContextType>;
   signUpResponse?: SignUpResponseResolvers<ContextType>;
 }>;

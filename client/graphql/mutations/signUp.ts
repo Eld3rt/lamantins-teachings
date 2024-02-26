@@ -6,11 +6,6 @@ export default gql`
       code
       success
       message
-      user {
-        id
-        name
-        email
-      }
     }
   }
 `
