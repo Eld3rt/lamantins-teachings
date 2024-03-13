@@ -34,6 +34,7 @@ export type MutationSignUpArgs = {
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   password: Scalars['String']['input'];
+  path?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type MutationResponse = {
@@ -44,7 +45,13 @@ export type MutationResponse = {
 
 export type Query = {
   __typename?: 'Query';
+  confirmAccount?: Maybe<ConfirmAccountResponse>;
   me?: Maybe<User>;
+};
+
+
+export type QueryConfirmAccountArgs = {
+  key: Scalars['String']['input'];
 };
 
 export type User = {
@@ -52,6 +59,12 @@ export type User = {
   email: Scalars['String']['output'];
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
+};
+
+export type ConfirmAccountResponse = {
+  __typename?: 'confirmAccountResponse';
+  path?: Maybe<Scalars['String']['output']>;
+  user: User;
 };
 
 export type SignInResponse = MutationResponse & {
@@ -69,6 +82,12 @@ export type SignUpResponse = MutationResponse & {
   success: Scalars['Boolean']['output'];
 };
 
+type MutationResponse_SignInResponse_Fragment = { __typename?: 'signInResponse', code: string, success: boolean, message: string };
+
+type MutationResponse_SignUpResponse_Fragment = { __typename?: 'signUpResponse', code: string, success: boolean, message: string };
+
+export type MutationResponseFragment = MutationResponse_SignInResponse_Fragment | MutationResponse_SignUpResponse_Fragment;
+
 export type UserFragment = { __typename?: 'User', id: number, name: string, email: string };
 
 export type SignInMutationVariables = Exact<{
@@ -83,16 +102,31 @@ export type SignUpMutationVariables = Exact<{
   name: Scalars['String']['input'];
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+  path: Scalars['String']['input'];
 }>;
 
 
 export type SignUpMutation = { __typename?: 'Mutation', signUp?: { __typename?: 'signUpResponse', code: string, success: boolean, message: string } | null };
+
+export type ConfirmAccountQueryVariables = Exact<{
+  key: Scalars['String']['input'];
+}>;
+
+
+export type ConfirmAccountQuery = { __typename?: 'Query', confirmAccount?: { __typename?: 'confirmAccountResponse', path?: string | null, user: { __typename?: 'User', id: number, name: string, email: string } } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, name: string, email: string } | null };
 
+export const MutationResponseFragmentDoc = gql`
+    fragment MutationResponse on MutationResponse {
+  code
+  success
+  message
+}
+    `;
 export const UserFragmentDoc = gql`
     fragment User on User {
   id
@@ -103,17 +137,14 @@ export const UserFragmentDoc = gql`
 export const SignInDocument = gql`
     mutation signIn($email: String!, $password: String!) {
   signIn(email: $email, password: $password) {
-    code
-    success
-    message
+    ...MutationResponse
     existingUser {
-      id
-      name
-      email
+      ...User
     }
   }
 }
-    `;
+    ${MutationResponseFragmentDoc}
+${UserFragmentDoc}`;
 export type SignInMutationFn = Apollo.MutationFunction<SignInMutation, SignInMutationVariables>;
 
 /**
@@ -142,14 +173,12 @@ export type SignInMutationHookResult = ReturnType<typeof useSignInMutation>;
 export type SignInMutationResult = Apollo.MutationResult<SignInMutation>;
 export type SignInMutationOptions = Apollo.BaseMutationOptions<SignInMutation, SignInMutationVariables>;
 export const SignUpDocument = gql`
-    mutation signUp($name: String!, $email: String!, $password: String!) {
-  signUp(name: $name, email: $email, password: $password) {
-    code
-    success
-    message
+    mutation signUp($name: String!, $email: String!, $password: String!, $path: String!) {
+  signUp(name: $name, email: $email, password: $password, path: $path) {
+    ...MutationResponse
   }
 }
-    `;
+    ${MutationResponseFragmentDoc}`;
 export type SignUpMutationFn = Apollo.MutationFunction<SignUpMutation, SignUpMutationVariables>;
 
 /**
@@ -168,6 +197,7 @@ export type SignUpMutationFn = Apollo.MutationFunction<SignUpMutation, SignUpMut
  *      name: // value for 'name'
  *      email: // value for 'email'
  *      password: // value for 'password'
+ *      path: // value for 'path'
  *   },
  * });
  */
@@ -178,6 +208,49 @@ export function useSignUpMutation(baseOptions?: Apollo.MutationHookOptions<SignU
 export type SignUpMutationHookResult = ReturnType<typeof useSignUpMutation>;
 export type SignUpMutationResult = Apollo.MutationResult<SignUpMutation>;
 export type SignUpMutationOptions = Apollo.BaseMutationOptions<SignUpMutation, SignUpMutationVariables>;
+export const ConfirmAccountDocument = gql`
+    query confirmAccount($key: String!) {
+  confirmAccount(key: $key) {
+    user {
+      ...User
+    }
+    path
+  }
+}
+    ${UserFragmentDoc}`;
+
+/**
+ * __useConfirmAccountQuery__
+ *
+ * To run a query within a React component, call `useConfirmAccountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useConfirmAccountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useConfirmAccountQuery({
+ *   variables: {
+ *      key: // value for 'key'
+ *   },
+ * });
+ */
+export function useConfirmAccountQuery(baseOptions: Apollo.QueryHookOptions<ConfirmAccountQuery, ConfirmAccountQueryVariables> & ({ variables: ConfirmAccountQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ConfirmAccountQuery, ConfirmAccountQueryVariables>(ConfirmAccountDocument, options);
+      }
+export function useConfirmAccountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ConfirmAccountQuery, ConfirmAccountQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ConfirmAccountQuery, ConfirmAccountQueryVariables>(ConfirmAccountDocument, options);
+        }
+export function useConfirmAccountSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ConfirmAccountQuery, ConfirmAccountQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ConfirmAccountQuery, ConfirmAccountQueryVariables>(ConfirmAccountDocument, options);
+        }
+export type ConfirmAccountQueryHookResult = ReturnType<typeof useConfirmAccountQuery>;
+export type ConfirmAccountLazyQueryHookResult = ReturnType<typeof useConfirmAccountLazyQuery>;
+export type ConfirmAccountSuspenseQueryHookResult = ReturnType<typeof useConfirmAccountSuspenseQuery>;
+export type ConfirmAccountQueryResult = Apollo.QueryResult<ConfirmAccountQuery, ConfirmAccountQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {

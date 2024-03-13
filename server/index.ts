@@ -1,5 +1,6 @@
 import express, { json } from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import { server } from './src/apollo/server'
 import { prisma } from './src/prisma/prisma'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -15,6 +16,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 app.use(express.json())
+app.use(cookieParser())
 
 await server.start()
 
@@ -24,7 +26,7 @@ app.use(
   json(),
   expressMiddleware(server, {
     context: async ({ req, res }) => {
-      const authToken = req.headers.cookie || ''
+      const authToken: string = req.cookies.sid || ''
 
       const secret = process.env.JWT_SECRET || 'lt.secret'
       let currentUser = null
@@ -34,7 +36,6 @@ app.use(
           where: { email: email },
         })
       }
-
       return { currentUser, res, prisma }
     },
   })

@@ -12,5 +12,5 @@ export const generateVerificationEmail = (credentials: EmailInput): Mail.Options
   subject: `Welcome to TestApp, ${credentials.name ?? 'user'}!`,
   html: `<h1> Verify your account!</h1>\
 	<p>Please click the link below to verify your account</p>\
-	<a href="${process.env.BASE_URL || 'http://localhost:4000'}/user/confirm/${credentials.uuid}">Register Account</a>`,
+	<a href="${process.env.BASE_URL || 'http://localhost:4000'}/user/confirm?key=${credentials.uuid}">Register Account</a>`,
 })

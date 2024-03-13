@@ -1,7 +1,7 @@
 import { redis } from '../redis/redis'
-import { MutationCreateUserArgs, RequireFields } from '../graphql/types/resolvers-types'
+import { QueryConfirmAccountArgs, RequireFields } from '../graphql/types/resolvers-types'
 
-export const getCachedUser = async (args: RequireFields<MutationCreateUserArgs, 'key'>) => {
+export const getCachedUser = async (args: RequireFields<QueryConfirmAccountArgs, 'key'>) => {
   const { key } = args
 
   const redisResult = await redis.multi().hgetall(key).exec()
@@ -18,6 +18,11 @@ export const getCachedUser = async (args: RequireFields<MutationCreateUserArgs, 
     name: string
     email: string
     passhash: string
+    path: string
+  }
+
+  if (!cachedUser.name || !cachedUser.email || !cachedUser.passhash) {
+    return null
   }
 
   await redis.del(key)

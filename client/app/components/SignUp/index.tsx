@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { Form, Formik, FormikHelpers } from 'formik'
 import { ApolloError } from '@apollo/client'
+import { usePathname } from 'next/navigation'
 import { useSignUpMutation } from '@/graphql/generated'
 import { authValidation } from '@/utils/authValidation'
 import FormInput from '../forms/FormInput'
@@ -16,10 +17,11 @@ interface FormikValues {
 
 const SignUp: React.FC<Props> = () => {
   const [signUp] = useSignUpMutation({
-    notifyOnNetworkStatusChange: true,
+    // notifyOnNetworkStatusChange: true,
   })
   const [errMsg, setErrMsg] = useState<string | undefined>()
   const [statusMsg, setStatusMsg] = useState<string | undefined>()
+  const path = usePathname()
 
   const handleSubmit = async (values: FormikValues, actions: FormikHelpers<FormikValues>) => {
     const creds = { ...values }
@@ -30,6 +32,7 @@ const SignUp: React.FC<Props> = () => {
           name: creds.name,
           email: creds.email,
           password: creds.password,
+          path: path,
         },
       })
       setStatusMsg(data?.signUp?.message)

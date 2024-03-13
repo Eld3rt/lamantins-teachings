@@ -8,7 +8,7 @@ export const { getClient } = registerApolloClient(() => {
     cache: new NextSSRInMemoryCache(),
     link: new HttpLink({
       uri: 'http://localhost:3000/graphql',
-      headers: { Cookie: cookies().get('sid')?.value || '' },
+      headers: { Cookie: `sid=${cookies().get('sid')?.value}` || '' },
     }),
   })
 })

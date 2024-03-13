@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Header from './components/Header'
-import { ApolloWrapper } from '../lib/ApolloWrapper'
+import { ApolloWrapper } from '../apollo/ApolloWrapper'
 
 export const metadata: Metadata = {
   title: 'Lamantins teachings',

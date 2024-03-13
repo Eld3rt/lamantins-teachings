@@ -15,11 +15,11 @@ import { generateVerificationEmail } from '../../../nodemailer/verifyAccount.js'
 export const typeDefs = gql`
   extend type Query {
     me: User
+    confirmAccount(key: String!): confirmAccountResponse
   }
 
   extend type Mutation {
-    signUp(name: String!, email: String!, password: String!): signUpResponse
-    createUser(key: String!): createUserResponse
+    signUp(name: String!, email: String!, password: String!, path: String): signUpResponse
     signIn(email: String!, password: String!): signInResponse
   }
 
@@ -29,11 +29,9 @@ export const typeDefs = gql`
     message: String!
   }
 
-  type createUserResponse implements MutationResponse {
-    code: String!
-    success: Boolean!
-    message: String!
-    user: User
+  type confirmAccountResponse {
+    user: User!
+    path: String
   }
 
   type signInResponse implements MutationResponse {
@@ -55,6 +53,32 @@ export const resolvers: Resolvers = {
     me: async (_, __, context) => {
       const { currentUser } = context
       return currentUser || null
+    },
+    confirmAccount: async (_, args, context) => {
+      try {
+        const { res, prisma } = context
+
+        const cachedUser = await getCachedUser(args)
+
+        if (!cachedUser) {
+          throw new Error('Error getting cached user')
+        }
+
+        const user = await createUser(cachedUser, prisma)
+
+        const path = cachedUser.path
+
+        const secret = process.env.JWT_SECRET || 'lt.secret'
+        const authToken = jsonwebtoken.sign(user.email, secret)
+        res.cookie('sid', authToken, {
+          maxAge: 60 * 60 * 24 * 7 * 1000, // One week
+        })
+
+        return { user, path }
+      } catch (error) {
+        console.log('signIn error', error)
+        throw new GraphQLError('Error confirm user')
+      }
     },
   },
   Mutation: {
@@ -96,28 +120,6 @@ export const resolvers: Resolvers = {
         throw new GraphQLError('Sign up error')
       }
     },
-    createUser: async (_, args, context) => {
-      try {
-        const { res, prisma } = context
-
-        const cachedUser = await getCachedUser(args)
-
-        if (!cachedUser) {
-          throw new Error('Error getting cached user')
-        }
-
-        const user = await createUser(cachedUser, prisma)
-
-        const secret = process.env.JWT_SECRET || 'lt.secret'
-        const authToken = jsonwebtoken.sign(user.email, secret)
-        res.cookie('sid', authToken, { maxAge: 60 * 60 * 24 * 7 * 1000 })
-
-        return { code: '200', success: true, message: 'User created successfully', user }
-      } catch (error) {
-        console.log('signIn error', error)
-        throw new GraphQLError('Error creating user')
-      }
-    },
     signIn: async (_, args, context) => {
       try {
         const { email, password } = args
@@ -127,7 +129,9 @@ export const resolvers: Resolvers = {
 
         const secret = process.env.JWT_SECRET || 'lt.secret'
         const authToken = jsonwebtoken.sign(email, secret)
-        res.cookie('sid', authToken, { maxAge: 60 * 60 * 24 * 7 * 1000 })
+        res.cookie('sid', authToken, {
+          maxAge: 60 * 60 * 24 * 7 * 1000, // One week
+        })
 
         const existingUser = await getExistingUser(args, prisma)
 

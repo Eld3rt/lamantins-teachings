@@ -1,9 +1,9 @@
 import { MeQuery, MeDocument } from '@/graphql/generated'
-import { getClient } from '@/lib/ApolloClient'
+import { getClient } from '@/apollo/ApolloClient'
 
 interface Props {}
 
-const Home: React.FC<Props> = async () => {
+const Page: React.FC<Props> = async () => {
   const { data } = await getClient().query<MeQuery>({
     query: MeDocument,
   })
@@ -15,4 +15,4 @@ const Home: React.FC<Props> = async () => {
   )
 }
 
-export default Home
+export default Page
