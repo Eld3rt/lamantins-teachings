@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { useApolloClient } from '@apollo/client'
+import { logout } from '@/utils/logout'
 import Modal from '../Modal'
 import SignIn from '../SignIn'
 import SignUp from '../SignUp'
@@ -24,6 +26,8 @@ const Header: React.FC<Props> = props => {
     hideModal: hideSignUpModal,
     toggleModal: toggleSignUpModal,
   }
+
+  const client = useApolloClient()
 
   return (
     <header className="header">
@@ -48,6 +52,9 @@ const Header: React.FC<Props> = props => {
               <SignUp />
             </Modal>
           </li>
+          <button className="btn" onClick={() => logout().then(() => client.resetStore())}>
+            Sign Out
+          </button>
         </ul>
       </nav>
     </header>
