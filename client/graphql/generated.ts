@@ -17,10 +17,35 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type ConfirmAccountResponse = {
+  __typename?: 'ConfirmAccountResponse';
+  path?: Maybe<Scalars['String']['output']>;
+  user?: Maybe<User>;
+};
+
+export type Course = {
+  __typename?: 'Course';
+  id: Scalars['Int']['output'];
+  lessons: Array<Lesson>;
+  name: Scalars['String']['output'];
+};
+
+export type Lesson = {
+  __typename?: 'Lesson';
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  purchaseCourse?: Maybe<PurchaseCourseResponse>;
   signIn?: Maybe<SignInResponse>;
   signUp?: Maybe<SignUpResponse>;
+};
+
+
+export type MutationPurchaseCourseArgs = {
+  courseId: Scalars['Int']['input'];
 };
 
 
@@ -37,21 +62,43 @@ export type MutationSignUpArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type MutationResponse = {
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
+export type PurchaseCourseResponse = {
+  __typename?: 'PurchaseCourseResponse';
+  purchasedCourse: Course;
 };
 
 export type Query = {
   __typename?: 'Query';
   confirmAccount?: Maybe<ConfirmAccountResponse>;
+  getCourseData?: Maybe<Course>;
+  getLesson?: Maybe<Lesson>;
+  getPurchasedCourses?: Maybe<Array<Course>>;
   me?: Maybe<User>;
 };
 
 
 export type QueryConfirmAccountArgs = {
   key: Scalars['String']['input'];
+};
+
+
+export type QueryGetCourseDataArgs = {
+  courseId: Scalars['Int']['input'];
+};
+
+
+export type QueryGetLessonArgs = {
+  id: Scalars['Int']['input'];
+};
+
+export type SignInResponse = {
+  __typename?: 'SignInResponse';
+  existingUser?: Maybe<User>;
+};
+
+export type SignUpResponse = {
+  __typename?: 'SignUpResponse';
+  message: Scalars['String']['output'];
 };
 
 export type User = {
@@ -61,34 +108,16 @@ export type User = {
   name: Scalars['String']['output'];
 };
 
-export type ConfirmAccountResponse = {
-  __typename?: 'confirmAccountResponse';
-  path?: Maybe<Scalars['String']['output']>;
-  user: User;
-};
-
-export type SignInResponse = MutationResponse & {
-  __typename?: 'signInResponse';
-  code: Scalars['String']['output'];
-  existingUser?: Maybe<User>;
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
-};
-
-export type SignUpResponse = MutationResponse & {
-  __typename?: 'signUpResponse';
-  code: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  success: Scalars['Boolean']['output'];
-};
-
-type MutationResponse_SignInResponse_Fragment = { __typename?: 'signInResponse', code: string, success: boolean, message: string };
-
-type MutationResponse_SignUpResponse_Fragment = { __typename?: 'signUpResponse', code: string, success: boolean, message: string };
-
-export type MutationResponseFragment = MutationResponse_SignInResponse_Fragment | MutationResponse_SignUpResponse_Fragment;
+export type CourseFragment = { __typename?: 'Course', id: number, name: string, lessons: Array<{ __typename?: 'Lesson', id: number, name: string }> };
 
 export type UserFragment = { __typename?: 'User', id: number, name: string, email: string };
+
+export type PurchaseCourseMutationVariables = Exact<{
+  courseId: Scalars['Int']['input'];
+}>;
+
+
+export type PurchaseCourseMutation = { __typename?: 'Mutation', purchaseCourse?: { __typename?: 'PurchaseCourseResponse', purchasedCourse: { __typename?: 'Course', id: number, name: string, lessons: Array<{ __typename?: 'Lesson', id: number, name: string }> } } | null };
 
 export type SignInMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -96,7 +125,7 @@ export type SignInMutationVariables = Exact<{
 }>;
 
 
-export type SignInMutation = { __typename?: 'Mutation', signIn?: { __typename?: 'signInResponse', code: string, success: boolean, message: string, existingUser?: { __typename?: 'User', id: number, name: string, email: string } | null } | null };
+export type SignInMutation = { __typename?: 'Mutation', signIn?: { __typename?: 'SignInResponse', existingUser?: { __typename?: 'User', id: number, name: string, email: string } | null } | null };
 
 export type SignUpMutationVariables = Exact<{
   name: Scalars['String']['input'];
@@ -106,25 +135,28 @@ export type SignUpMutationVariables = Exact<{
 }>;
 
 
-export type SignUpMutation = { __typename?: 'Mutation', signUp?: { __typename?: 'signUpResponse', code: string, success: boolean, message: string } | null };
+export type SignUpMutation = { __typename?: 'Mutation', signUp?: { __typename?: 'SignUpResponse', message: string } | null };
 
 export type ConfirmAccountQueryVariables = Exact<{
   key: Scalars['String']['input'];
 }>;
 
 
-export type ConfirmAccountQuery = { __typename?: 'Query', confirmAccount?: { __typename?: 'confirmAccountResponse', path?: string | null, user: { __typename?: 'User', id: number, name: string, email: string } } | null };
+export type ConfirmAccountQuery = { __typename?: 'Query', confirmAccount?: { __typename?: 'ConfirmAccountResponse', path?: string | null, user?: { __typename?: 'User', id: number, name: string, email: string } | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, name: string, email: string } | null };
 
-export const MutationResponseFragmentDoc = gql`
-    fragment MutationResponse on MutationResponse {
-  code
-  success
-  message
+export const CourseFragmentDoc = gql`
+    fragment Course on Course {
+  id
+  name
+  lessons {
+    id
+    name
+  }
 }
     `;
 export const UserFragmentDoc = gql`
@@ -134,17 +166,50 @@ export const UserFragmentDoc = gql`
   email
 }
     `;
+export const PurchaseCourseDocument = gql`
+    mutation PurchaseCourse($courseId: Int!) {
+  purchaseCourse(courseId: $courseId) {
+    purchasedCourse {
+      ...Course
+    }
+  }
+}
+    ${CourseFragmentDoc}`;
+export type PurchaseCourseMutationFn = Apollo.MutationFunction<PurchaseCourseMutation, PurchaseCourseMutationVariables>;
+
+/**
+ * __usePurchaseCourseMutation__
+ *
+ * To run a mutation, you first call `usePurchaseCourseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePurchaseCourseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [purchaseCourseMutation, { data, loading, error }] = usePurchaseCourseMutation({
+ *   variables: {
+ *      courseId: // value for 'courseId'
+ *   },
+ * });
+ */
+export function usePurchaseCourseMutation(baseOptions?: Apollo.MutationHookOptions<PurchaseCourseMutation, PurchaseCourseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PurchaseCourseMutation, PurchaseCourseMutationVariables>(PurchaseCourseDocument, options);
+      }
+export type PurchaseCourseMutationHookResult = ReturnType<typeof usePurchaseCourseMutation>;
+export type PurchaseCourseMutationResult = Apollo.MutationResult<PurchaseCourseMutation>;
+export type PurchaseCourseMutationOptions = Apollo.BaseMutationOptions<PurchaseCourseMutation, PurchaseCourseMutationVariables>;
 export const SignInDocument = gql`
     mutation signIn($email: String!, $password: String!) {
   signIn(email: $email, password: $password) {
-    ...MutationResponse
     existingUser {
       ...User
     }
   }
 }
-    ${MutationResponseFragmentDoc}
-${UserFragmentDoc}`;
+    ${UserFragmentDoc}`;
 export type SignInMutationFn = Apollo.MutationFunction<SignInMutation, SignInMutationVariables>;
 
 /**
@@ -175,10 +240,10 @@ export type SignInMutationOptions = Apollo.BaseMutationOptions<SignInMutation, S
 export const SignUpDocument = gql`
     mutation signUp($name: String!, $email: String!, $password: String!, $path: String!) {
   signUp(name: $name, email: $email, password: $password, path: $path) {
-    ...MutationResponse
+    message
   }
 }
-    ${MutationResponseFragmentDoc}`;
+    `;
 export type SignUpMutationFn = Apollo.MutationFunction<SignUpMutation, SignUpMutationVariables>;
 
 /**

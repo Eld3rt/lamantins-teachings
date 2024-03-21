@@ -12,6 +12,8 @@ const config: CodegenConfig = {
         contextType: '../../apollo/server#MyContext',
         mappers: {
           User: '.prisma/client#User as UserModel',
+          Course: '.prisma/client#Course as CourseModel',
+          Lesson: '.prisma/client#Lesson as LessonModel',
         },
       },
     },

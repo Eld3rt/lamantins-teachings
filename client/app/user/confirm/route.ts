@@ -12,9 +12,9 @@ export const GET = async (req: NextRequest) => {
     variables: { key },
   })
 
-  if (data.confirmAccount) {
+  if (data.confirmAccount?.user) {
     const secret = process.env.JWT_SECRET || 'lt.secret'
-    const authToken = jsonwebtoken.sign(data.confirmAccount.user.email, secret)
+    const authToken = jsonwebtoken.sign(data.confirmAccount.user?.email, secret)
     cookies().set('sid', authToken, {
       maxAge: 60 * 60 * 24 * 7, // One week
     })

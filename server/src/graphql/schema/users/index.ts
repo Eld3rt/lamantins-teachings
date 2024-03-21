@@ -15,29 +15,24 @@ import { generateVerificationEmail } from '../../../nodemailer/verifyAccount.js'
 export const typeDefs = gql`
   extend type Query {
     me: User
-    confirmAccount(key: String!): confirmAccountResponse
+    confirmAccount(key: String!): ConfirmAccountResponse
   }
 
   extend type Mutation {
-    signUp(name: String!, email: String!, password: String!, path: String): signUpResponse
-    signIn(email: String!, password: String!): signInResponse
+    signUp(name: String!, email: String!, password: String!, path: String): SignUpResponse
+    signIn(email: String!, password: String!): SignInResponse
   }
 
-  type signUpResponse implements MutationResponse {
-    code: String!
-    success: Boolean!
+  type SignUpResponse {
     message: String!
   }
 
-  type confirmAccountResponse {
-    user: User!
+  type ConfirmAccountResponse {
+    user: User
     path: String
   }
 
-  type signInResponse implements MutationResponse {
-    code: String!
-    success: Boolean!
-    message: String!
+  type SignInResponse {
     existingUser: User
   }
 
@@ -56,7 +51,7 @@ export const resolvers: Resolvers = {
     },
     confirmAccount: async (_, args, context) => {
       try {
-        const { res, prisma } = context
+        const { prisma } = context
 
         const cachedUser = await getCachedUser(args)
 
@@ -67,12 +62,6 @@ export const resolvers: Resolvers = {
         const user = await createUser(cachedUser, prisma)
 
         const path = cachedUser.path
-
-        const secret = process.env.JWT_SECRET || 'lt.secret'
-        const authToken = jsonwebtoken.sign(user.email, secret)
-        res.cookie('sid', authToken, {
-          maxAge: 60 * 60 * 24 * 7 * 1000, // One week
-        })
 
         return { user, path }
       } catch (error) {
@@ -111,8 +100,6 @@ export const resolvers: Resolvers = {
         })
 
         return {
-          code: '200',
-          success: true,
           message: 'Thanks for registering! Check your email for instructions on how to verify your account.',
         }
       } catch (error) {
@@ -141,7 +128,7 @@ export const resolvers: Resolvers = {
           throw new Error('Incorrect email or password')
         }
 
-        return { code: '200', success: true, message: 'Signed in successfully', existingUser }
+        return { existingUser }
       } catch (error) {
         console.log('signIn error', error)
         throw new GraphQLError('Error sign in')

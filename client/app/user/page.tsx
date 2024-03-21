@@ -1,5 +1,3 @@
-import { redirect } from 'next/navigation'
-
 interface Props {}
 
 const Page: React.FC<Props> = () => {

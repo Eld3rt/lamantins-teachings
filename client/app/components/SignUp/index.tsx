@@ -17,7 +17,7 @@ interface FormikValues {
 
 const SignUp: React.FC<Props> = () => {
   const [signUp] = useSignUpMutation({
-    // notifyOnNetworkStatusChange: true,
+    notifyOnNetworkStatusChange: true,
   })
   const [errMsg, setErrMsg] = useState<string | undefined>()
   const [statusMsg, setStatusMsg] = useState<string | undefined>()
