@@ -28,8 +28,9 @@ export type ConfirmAccountResponse = {
 export type Course = {
   __typename?: 'Course';
   id: Scalars['Int']['output'];
-  lessons: Array<Lesson>;
+  lessons?: Maybe<Array<Lesson>>;
   name: Scalars['String']['output'];
+  slug?: Maybe<Scalars['String']['output']>;
 };
 
 export type Lesson = {
@@ -73,6 +74,7 @@ export type Query = {
   __typename?: 'Query';
   confirmAccount?: Maybe<ConfirmAccountResponse>;
   getCourseData?: Maybe<Course>;
+  getCourses: Array<Course>;
   getLesson?: Maybe<Lesson>;
   getPurchasedCourses?: Maybe<Array<Course>>;
   me?: Maybe<User>;
@@ -85,7 +87,7 @@ export type QueryConfirmAccountArgs = {
 
 
 export type QueryGetCourseDataArgs = {
-  courseId: Scalars['Int']['input'];
+  slug: Scalars['String']['input'];
 };
 
 
@@ -220,8 +222,9 @@ export type ConfirmAccountResponseResolvers<ContextType = MyContext, ParentType 
 
 export type CourseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Course'] = ResolversParentTypes['Course']> = ResolversObject<{
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  lessons?: Resolver<Array<ResolversTypes['Lesson']>, ParentType, ContextType>;
+  lessons?: Resolver<Maybe<Array<ResolversTypes['Lesson']>>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -244,7 +247,8 @@ export type PurchaseCourseResponseResolvers<ContextType = MyContext, ParentType 
 
 export type QueryResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   confirmAccount?: Resolver<Maybe<ResolversTypes['ConfirmAccountResponse']>, ParentType, ContextType, RequireFields<QueryConfirmAccountArgs, 'key'>>;
-  getCourseData?: Resolver<Maybe<ResolversTypes['Course']>, ParentType, ContextType, RequireFields<QueryGetCourseDataArgs, 'courseId'>>;
+  getCourseData?: Resolver<Maybe<ResolversTypes['Course']>, ParentType, ContextType, RequireFields<QueryGetCourseDataArgs, 'slug'>>;
+  getCourses?: Resolver<Array<ResolversTypes['Course']>, ParentType, ContextType>;
   getLesson?: Resolver<Maybe<ResolversTypes['Lesson']>, ParentType, ContextType, RequireFields<QueryGetLessonArgs, 'id'>>;
   getPurchasedCourses?: Resolver<Maybe<Array<ResolversTypes['Course']>>, ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;

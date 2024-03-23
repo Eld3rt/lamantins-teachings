@@ -39,7 +39,6 @@ const SignUp: React.FC<Props> = () => {
       console.log(statusMsg)
     } catch (error) {
       setErrMsg((error as ApolloError).message)
-      console.log(errMsg)
     }
   }
   return (
@@ -61,6 +60,7 @@ const SignUp: React.FC<Props> = () => {
           <button className="btn" type="submit">
             Sign Up
           </button>
+          <p className="status-text">{errMsg}</p>
         </Form>
       </div>
     </Formik>

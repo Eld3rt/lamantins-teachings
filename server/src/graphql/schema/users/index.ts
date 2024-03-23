@@ -50,89 +50,73 @@ export const resolvers: Resolvers = {
       return currentUser || null
     },
     confirmAccount: async (_, args, context) => {
-      try {
-        const { prisma } = context
+      const { prisma } = context
 
-        const cachedUser = await getCachedUser(args)
+      const cachedUser = await getCachedUser(args)
 
-        if (!cachedUser) {
-          throw new Error('Error getting cached user')
-        }
-
-        const user = await createUser(cachedUser, prisma)
-
-        const path = cachedUser.path
-
-        return { user, path }
-      } catch (error) {
-        console.log('signIn error', error)
-        throw new GraphQLError('Error confirm user')
+      if (!cachedUser) {
+        throw new Error('Error getting cached user')
       }
+
+      const user = await createUser(cachedUser, prisma)
+
+      const path = cachedUser.path
+
+      return { user, path }
     },
   },
   Mutation: {
     signUp: async (_, args, context) => {
-      try {
-        const { name, email } = args
+      const { name, email } = args
 
-        const { prisma } = context
+      const { prisma } = context
 
-        await authValidation.validate(args)
+      await authValidation.validate(args)
 
-        const existingUser = await getExistingUser(args, prisma)
-        if (existingUser !== null) {
-          throw new Error('Email or username already taken!')
-        }
+      const existingUser = await getExistingUser(args, prisma)
+      if (existingUser !== null) {
+        throw new Error('Email or username already taken!')
+      }
 
-        const key = uuidv4()
+      const key = uuidv4()
 
-        await createCachedUser(args, key)
+      await createCachedUser(args, key)
 
-        const transport = await getTransport()
-        const mailOptions = generateVerificationEmail({
-          name: name,
-          email: email,
-          uuid: key,
-        })
-        transport.sendMail(mailOptions).then(info => {
-          console.log(`Message id: ${info.messageId}`)
-          console.log(`URL: ${nodemailer.getTestMessageUrl(info)}`)
-        })
+      const transport = await getTransport()
+      const mailOptions = generateVerificationEmail({
+        name: name,
+        email: email,
+        uuid: key,
+      })
+      transport.sendMail(mailOptions).then(info => {
+        console.log(`Message id: ${info.messageId}`)
+        console.log(`URL: ${nodemailer.getTestMessageUrl(info)}`)
+      })
 
-        return {
-          message: 'Thanks for registering! Check your email for instructions on how to verify your account.',
-        }
-      } catch (error) {
-        console.log('signUp error', error)
-        throw new GraphQLError('Sign up error')
+      return {
+        message: 'Thanks for registering! Check your email for instructions on how to verify your account.',
       }
     },
     signIn: async (_, args, context) => {
-      try {
-        const { email, password } = args
-        const { res, prisma } = context
+      const { email, password } = args
+      const { res, prisma } = context
 
-        await authValidation.validate(args)
+      await authValidation.validate(args)
 
-        const secret = process.env.JWT_SECRET || 'lt.secret'
-        const authToken = jsonwebtoken.sign(email, secret)
-        res.cookie('sid', authToken, {
-          maxAge: 60 * 60 * 24 * 7 * 1000, // One week
-        })
+      const existingUser = await getExistingUser(args, prisma)
 
-        const existingUser = await getExistingUser(args, prisma)
+      const passwordMatch = await compare(password, (existingUser?.passhash as string) || '')
 
-        const passwordMatch = await compare(password, (existingUser?.passhash as string) || '')
-
-        if (!existingUser || !passwordMatch) {
-          throw new Error('Incorrect email or password')
-        }
-
-        return { existingUser }
-      } catch (error) {
-        console.log('signIn error', error)
-        throw new GraphQLError('Error sign in')
+      if (!existingUser || !passwordMatch) {
+        throw new Error('Incorrect email or password')
       }
+
+      const secret = process.env.JWT_SECRET || 'lt.secret'
+      const authToken = jsonwebtoken.sign(email, secret)
+      res.cookie('sid', authToken, {
+        maxAge: 60 * 60 * 24 * 7 * 1000, // One week
+      })
+      return { existingUser }
     },
   },
 }

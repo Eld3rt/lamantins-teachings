@@ -33,7 +33,6 @@ const SignIn: React.FC<Props> = () => {
       location.reload()
     } catch (error) {
       setErrMsg((error as ApolloError).message)
-      console.log(errMsg)
     }
   }
   return (
@@ -53,6 +52,7 @@ const SignIn: React.FC<Props> = () => {
           <button className="btn" type="submit">
             Sign In
           </button>
+          <p className="status-text">{errMsg}</p>
         </Form>
       </div>
     </Formik>

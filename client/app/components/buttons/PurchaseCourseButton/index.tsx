@@ -4,9 +4,11 @@ import { usePurchaseCourseMutation } from '@/graphql/generated'
 import { ApolloError } from '@apollo/client'
 import { useState } from 'react'
 
-interface Props {}
+interface Props {
+  courseId: number
+}
 
-const Page: React.FC<Props> = () => {
+const PurchaseCourseButton: React.FC<Props> = ({ courseId }) => {
   const [purchaseCourse] = usePurchaseCourseMutation({
     notifyOnNetworkStatusChange: true,
   })
@@ -14,22 +16,20 @@ const Page: React.FC<Props> = () => {
 
   const handleSubmit = async () => {
     try {
-      const { data } = await purchaseCourse({ variables: { courseId: 1 } })
+      const { data } = await purchaseCourse({ variables: { courseId: courseId } })
       console.log(data?.purchaseCourse?.purchasedCourse)
     } catch (error) {
       setErrMsg((error as ApolloError).message)
-      console.log(errMsg)
     }
   }
-
   return (
     <>
-      <h1>Course Page</h1>
       <button className="btn" type="submit" onClick={handleSubmit}>
         Purchase Course
       </button>
+      <p className="status-text">{errMsg}</p>
     </>
   )
 }
 
-export default Page
+export default PurchaseCourseButton
