@@ -19,6 +19,8 @@ export const GET = async (req: NextRequest) => {
       maxAge: 60 * 60 * 24 * 7, // One week
     })
 
-    return NextResponse.redirect(`http://localhost:4000${data.confirmAccount?.path ?? ''}`)
+    const path = data.confirmAccount?.path
+
+    return NextResponse.redirect(`${path ? `http://localhost:4000/courses/${path}` : 'http://localhost:4000'}`)
   }
 }

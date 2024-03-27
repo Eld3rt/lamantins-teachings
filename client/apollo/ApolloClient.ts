@@ -4,7 +4,7 @@ import { registerApolloClient } from '@apollo/experimental-nextjs-app-support/rs
 import { cookies } from 'next/headers'
 
 export const { getClient } = registerApolloClient(() => {
-  let authToken = cookies().get('sid')?.value
+  const authToken = cookies().get('sid')?.value
 
   return new NextSSRApolloClient({
     cache: new NextSSRInMemoryCache(),

@@ -3,10 +3,11 @@
 import React, { useState } from 'react'
 import { Form, Formik, FormikHelpers } from 'formik'
 import { ApolloError } from '@apollo/client'
-import { usePathname } from 'next/navigation'
 import { useSignUpMutation } from '@/graphql/generated'
 import { authValidation } from '@/utils/authValidation'
 import FormInput from '../forms/FormInput'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 interface Props {}
 interface FormikValues {
@@ -16,12 +17,13 @@ interface FormikValues {
 }
 
 const SignUp: React.FC<Props> = () => {
+  const searchParams = useSearchParams()
+  const course_slug = searchParams.get('course_slug')
   const [signUp] = useSignUpMutation({
     notifyOnNetworkStatusChange: true,
   })
   const [errMsg, setErrMsg] = useState<string | undefined>()
   const [statusMsg, setStatusMsg] = useState<string | undefined>()
-  const path = usePathname()
 
   const handleSubmit = async (values: FormikValues, actions: FormikHelpers<FormikValues>) => {
     const creds = { ...values }
@@ -32,7 +34,7 @@ const SignUp: React.FC<Props> = () => {
           name: creds.name,
           email: creds.email,
           password: creds.password,
-          path: path,
+          path: course_slug,
         },
       })
       setStatusMsg(data?.signUp?.message)
@@ -61,6 +63,7 @@ const SignUp: React.FC<Props> = () => {
             Sign Up
           </button>
           <p className="status-text">{errMsg}</p>
+          <Link href={course_slug ? `/login?course_slug=${course_slug}` : '/login'}>Sign In</Link>
         </Form>
       </div>
     </Formik>

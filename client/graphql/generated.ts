@@ -133,7 +133,7 @@ export type SignUpMutationVariables = Exact<{
   name: Scalars['String']['input'];
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
-  path: Scalars['String']['input'];
+  path?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -157,6 +157,11 @@ export type GetCoursesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetCoursesQuery = { __typename?: 'Query', getCourses: Array<{ __typename?: 'Course', id: number, name: string, slug?: string | null, lessons?: Array<{ __typename?: 'Lesson', id: number, name: string }> | null }> };
+
+export type GetPurchasedCoursesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPurchasedCoursesQuery = { __typename?: 'Query', getPurchasedCourses?: Array<{ __typename?: 'Course', id: number, name: string, slug?: string | null, lessons?: Array<{ __typename?: 'Lesson', id: number, name: string }> | null }> | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -253,7 +258,7 @@ export type SignInMutationHookResult = ReturnType<typeof useSignInMutation>;
 export type SignInMutationResult = Apollo.MutationResult<SignInMutation>;
 export type SignInMutationOptions = Apollo.BaseMutationOptions<SignInMutation, SignInMutationVariables>;
 export const SignUpDocument = gql`
-    mutation signUp($name: String!, $email: String!, $password: String!, $path: String!) {
+    mutation signUp($name: String!, $email: String!, $password: String!, $path: String) {
   signUp(name: $name, email: $email, password: $password, path: $path) {
     message
   }
@@ -410,6 +415,45 @@ export type GetCoursesQueryHookResult = ReturnType<typeof useGetCoursesQuery>;
 export type GetCoursesLazyQueryHookResult = ReturnType<typeof useGetCoursesLazyQuery>;
 export type GetCoursesSuspenseQueryHookResult = ReturnType<typeof useGetCoursesSuspenseQuery>;
 export type GetCoursesQueryResult = Apollo.QueryResult<GetCoursesQuery, GetCoursesQueryVariables>;
+export const GetPurchasedCoursesDocument = gql`
+    query GetPurchasedCourses {
+  getPurchasedCourses {
+    ...Course
+  }
+}
+    ${CourseFragmentDoc}`;
+
+/**
+ * __useGetPurchasedCoursesQuery__
+ *
+ * To run a query within a React component, call `useGetPurchasedCoursesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchasedCoursesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPurchasedCoursesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPurchasedCoursesQuery(baseOptions?: Apollo.QueryHookOptions<GetPurchasedCoursesQuery, GetPurchasedCoursesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPurchasedCoursesQuery, GetPurchasedCoursesQueryVariables>(GetPurchasedCoursesDocument, options);
+      }
+export function useGetPurchasedCoursesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPurchasedCoursesQuery, GetPurchasedCoursesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPurchasedCoursesQuery, GetPurchasedCoursesQueryVariables>(GetPurchasedCoursesDocument, options);
+        }
+export function useGetPurchasedCoursesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPurchasedCoursesQuery, GetPurchasedCoursesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPurchasedCoursesQuery, GetPurchasedCoursesQueryVariables>(GetPurchasedCoursesDocument, options);
+        }
+export type GetPurchasedCoursesQueryHookResult = ReturnType<typeof useGetPurchasedCoursesQuery>;
+export type GetPurchasedCoursesLazyQueryHookResult = ReturnType<typeof useGetPurchasedCoursesLazyQuery>;
+export type GetPurchasedCoursesSuspenseQueryHookResult = ReturnType<typeof useGetPurchasedCoursesSuspenseQuery>;
+export type GetPurchasedCoursesQueryResult = Apollo.QueryResult<GetPurchasedCoursesQuery, GetPurchasedCoursesQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {

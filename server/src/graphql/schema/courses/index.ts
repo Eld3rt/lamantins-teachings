@@ -4,6 +4,7 @@ import { getPurchasedCourse } from '../../../utils/getPurchasedCourse'
 import { purchaseCourse } from '../../../utils/purchaseCourse'
 import { getCourses } from '../../../utils/getCourses'
 import { getCourseData } from '../../../utils/getCourseData'
+import { getPurchasedCourses } from '../../../utils/getPurchasedCourses'
 
 export const typeDefs = gql`
   extend type Query {
@@ -50,12 +51,21 @@ export const resolvers: Resolvers = {
 
       return course
     },
+    getPurchasedCourses: async (_, __, context) => {
+      const { currentUser, prisma } = context
+
+      if (!currentUser) throw new Error('User is not logged in')
+
+      const purchasedCourses = await getPurchasedCourses(currentUser, prisma)
+
+      return purchasedCourses
+    },
   },
   Mutation: {
     purchaseCourse: async (_, args, context) => {
       const { currentUser, prisma } = context
 
-      if (!currentUser) throw new Error('User is not logged in')
+      if (!currentUser) return null
 
       const existingPurchasedCourse = await getPurchasedCourse(args, currentUser, prisma)
       if (existingPurchasedCourse) throw new Error('User has already successfully purchased the course.')

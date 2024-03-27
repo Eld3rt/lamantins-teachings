@@ -15,13 +15,13 @@ export const getCachedUser = async (args: RequireFields<QueryConfirmAccountArgs,
   }
 
   const cachedUser = redisResult[0][1] as {
-    name: string
+    name?: string
     email: string
     passhash: string
     path: string
   }
 
-  if (!cachedUser.name || !cachedUser.email || !cachedUser.passhash) {
+  if (!cachedUser.email || !cachedUser.passhash) {
     return null
   }
 

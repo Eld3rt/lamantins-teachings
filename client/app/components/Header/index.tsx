@@ -1,33 +1,12 @@
-'use client'
-
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
-import { useApolloClient } from '@apollo/client'
-import { logout } from '@/utils/logout'
-import Modal from '../Modal'
-import SignIn from '../SignIn'
-import SignUp from '../SignUp'
+import SignOut from '../SignOut'
+import { getCurrentUser } from '@/utils/getCurrentUser'
 
 interface Props {}
 
-const Header: React.FC<Props> = props => {
-  const [hideSignInModal, setHideSignInModal] = useState(true)
-  const [hideSignUpModal, setHideSignUpModal] = useState(true)
-
-  const toggleSignInModal = () => setHideSignInModal(!hideSignInModal)
-  const toggleSignUpModal = () => setHideSignUpModal(!hideSignUpModal)
-
-  const configSigInModal = {
-    hideModal: hideSignInModal,
-    toggleModal: toggleSignInModal,
-  }
-
-  const configSigUpModal = {
-    hideModal: hideSignUpModal,
-    toggleModal: toggleSignUpModal,
-  }
-
-  const client = useApolloClient()
+const Header: React.FC<Props> = async () => {
+  const currentUser = await getCurrentUser()
 
   return (
     <header className="header">
@@ -37,24 +16,15 @@ const Header: React.FC<Props> = props => {
             <Link href="/">Home</Link>
           </li>
           <li>
-            <button className="btn" onClick={() => toggleSignInModal()}>
-              Sign In
-            </button>
-            <Modal {...configSigInModal}>
-              <SignIn />
-            </Modal>
+            <Link href="/register">Sign Up</Link>
           </li>
-          <li>
-            <button className="btn" onClick={() => toggleSignUpModal()}>
-              Sign Up
-            </button>
-            <Modal {...configSigUpModal}>
-              <SignUp />
-            </Modal>
-          </li>
-          <button className="btn" onClick={() => logout().then(() => client.resetStore())}>
-            Sign Out
-          </button>
+          {!currentUser ? (
+            <li>
+              <Link href="/login">Sign In</Link>
+            </li>
+          ) : (
+            <SignOut />
+          )}
         </ul>
       </nav>
     </header>

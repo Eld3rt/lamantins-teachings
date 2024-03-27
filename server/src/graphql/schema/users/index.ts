@@ -1,4 +1,3 @@
-import { GraphQLError } from 'graphql'
 import gql from 'graphql-tag'
 import jsonwebtoken from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
@@ -75,7 +74,7 @@ export const resolvers: Resolvers = {
 
       const existingUser = await getExistingUser(args, prisma)
       if (existingUser !== null) {
-        throw new Error('Email or username already taken!')
+        throw new Error('Email already taken!')
       }
 
       const key = uuidv4()

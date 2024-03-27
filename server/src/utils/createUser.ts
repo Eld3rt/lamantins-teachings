@@ -2,7 +2,7 @@ import { PrismaClient, User } from '@prisma/client'
 
 export const createUser = async (
   cachedUser: {
-    name: string
+    name?: string
     email: string
     passhash: string
   },

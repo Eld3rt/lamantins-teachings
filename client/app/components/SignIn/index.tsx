@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import { Form, Formik, FormikHelpers } from 'formik'
 import { ApolloError } from '@apollo/client'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useSignInMutation } from '@/graphql/generated'
 import { authValidation } from '@/utils/authValidation'
 import FormInput from '../forms/FormInput'
@@ -14,6 +16,8 @@ interface FormikValues {
 }
 
 const SignIn: React.FC<Props> = () => {
+  const searchParams = useSearchParams()
+  const course_slug = searchParams.get('course_slug')
   const [signIn] = useSignInMutation({
     notifyOnNetworkStatusChange: true,
   })
@@ -23,14 +27,13 @@ const SignIn: React.FC<Props> = () => {
     const creds = { ...values }
     actions.resetForm()
     try {
-      const { data } = await signIn({
+      await signIn({
         variables: {
           email: creds.email,
           password: creds.password,
         },
       })
-      console.log(data?.signIn?.existingUser)
-      location.reload()
+      location.assign(`${course_slug ? `http://localhost:4000/courses/${course_slug}` : 'http://localhost:4000'}`)
     } catch (error) {
       setErrMsg((error as ApolloError).message)
     }
@@ -53,6 +56,7 @@ const SignIn: React.FC<Props> = () => {
             Sign In
           </button>
           <p className="status-text">{errMsg}</p>
+          <Link href="/register">Don't have an account?</Link>
         </Form>
       </div>
     </Formik>
