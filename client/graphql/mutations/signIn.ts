@@ -5,7 +5,7 @@ export default gql`
   mutation signIn($email: String!, $password: String!) {
     signIn(email: $email, password: $password) {
 			existingUser{
-				...User
+				email
 			}
     }
 		${user}

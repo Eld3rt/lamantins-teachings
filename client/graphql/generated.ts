@@ -112,6 +112,8 @@ export type User = {
 
 export type CourseFragment = { __typename?: 'Course', id: number, name: string, slug?: string | null, lessons?: Array<{ __typename?: 'Lesson', id: number, name: string }> | null };
 
+export type CourseInfoFragment = { __typename?: 'Course', id: number, name: string, slug?: string | null };
+
 export type UserFragment = { __typename?: 'User', id: number, name: string, email: string };
 
 export type PurchaseCourseMutationVariables = Exact<{
@@ -119,7 +121,7 @@ export type PurchaseCourseMutationVariables = Exact<{
 }>;
 
 
-export type PurchaseCourseMutation = { __typename?: 'Mutation', purchaseCourse?: { __typename?: 'PurchaseCourseResponse', purchasedCourse: { __typename?: 'Course', id: number, name: string, slug?: string | null, lessons?: Array<{ __typename?: 'Lesson', id: number, name: string }> | null } } | null };
+export type PurchaseCourseMutation = { __typename?: 'Mutation', purchaseCourse?: { __typename?: 'PurchaseCourseResponse', purchasedCourse: { __typename?: 'Course', id: number, name: string, slug?: string | null } } | null };
 
 export type SignInMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -127,7 +129,7 @@ export type SignInMutationVariables = Exact<{
 }>;
 
 
-export type SignInMutation = { __typename?: 'Mutation', signIn?: { __typename?: 'SignInResponse', existingUser?: { __typename?: 'User', id: number, name: string, email: string } | null } | null };
+export type SignInMutation = { __typename?: 'Mutation', signIn?: { __typename?: 'SignInResponse', existingUser?: { __typename?: 'User', email: string } | null } | null };
 
 export type SignUpMutationVariables = Exact<{
   name: Scalars['String']['input'];
@@ -144,7 +146,7 @@ export type ConfirmAccountQueryVariables = Exact<{
 }>;
 
 
-export type ConfirmAccountQuery = { __typename?: 'Query', confirmAccount?: { __typename?: 'ConfirmAccountResponse', path?: string | null, user?: { __typename?: 'User', id: number, name: string, email: string } | null } | null };
+export type ConfirmAccountQuery = { __typename?: 'Query', confirmAccount?: { __typename?: 'ConfirmAccountResponse', path?: string | null, user?: { __typename?: 'User', email: string } | null } | null };
 
 export type GetCourseDataQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -153,15 +155,22 @@ export type GetCourseDataQueryVariables = Exact<{
 
 export type GetCourseDataQuery = { __typename?: 'Query', getCourseData?: { __typename?: 'Course', id: number, name: string, slug?: string | null, lessons?: Array<{ __typename?: 'Lesson', id: number, name: string }> | null } | null };
 
+export type GetCourseInfoQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+export type GetCourseInfoQuery = { __typename?: 'Query', getCourseData?: { __typename?: 'Course', id: number, name: string, slug?: string | null } | null };
+
 export type GetCoursesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCoursesQuery = { __typename?: 'Query', getCourses: Array<{ __typename?: 'Course', id: number, name: string, slug?: string | null, lessons?: Array<{ __typename?: 'Lesson', id: number, name: string }> | null }> };
+export type GetCoursesQuery = { __typename?: 'Query', getCourses: Array<{ __typename?: 'Course', id: number, name: string, slug?: string | null }> };
 
 export type GetPurchasedCoursesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPurchasedCoursesQuery = { __typename?: 'Query', getPurchasedCourses?: Array<{ __typename?: 'Course', id: number, name: string, slug?: string | null, lessons?: Array<{ __typename?: 'Lesson', id: number, name: string }> | null }> | null };
+export type GetPurchasedCoursesQuery = { __typename?: 'Query', getPurchasedCourses?: Array<{ __typename?: 'Course', id: number, name: string, slug?: string | null }> | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -179,6 +188,13 @@ export const CourseFragmentDoc = gql`
   }
 }
     `;
+export const CourseInfoFragmentDoc = gql`
+    fragment CourseInfo on Course {
+  id
+  name
+  slug
+}
+    `;
 export const UserFragmentDoc = gql`
     fragment User on User {
   id
@@ -190,11 +206,11 @@ export const PurchaseCourseDocument = gql`
     mutation PurchaseCourse($courseId: Int!) {
   purchaseCourse(courseId: $courseId) {
     purchasedCourse {
-      ...Course
+      ...CourseInfo
     }
   }
 }
-    ${CourseFragmentDoc}`;
+    ${CourseInfoFragmentDoc}`;
 export type PurchaseCourseMutationFn = Apollo.MutationFunction<PurchaseCourseMutation, PurchaseCourseMutationVariables>;
 
 /**
@@ -225,11 +241,11 @@ export const SignInDocument = gql`
     mutation signIn($email: String!, $password: String!) {
   signIn(email: $email, password: $password) {
     existingUser {
-      ...User
+      email
     }
   }
 }
-    ${UserFragmentDoc}`;
+    `;
 export type SignInMutationFn = Apollo.MutationFunction<SignInMutation, SignInMutationVariables>;
 
 /**
@@ -297,12 +313,12 @@ export const ConfirmAccountDocument = gql`
     query confirmAccount($key: String!) {
   confirmAccount(key: $key) {
     user {
-      ...User
+      email
     }
     path
   }
 }
-    ${UserFragmentDoc}`;
+    `;
 
 /**
  * __useConfirmAccountQuery__
@@ -376,13 +392,53 @@ export type GetCourseDataQueryHookResult = ReturnType<typeof useGetCourseDataQue
 export type GetCourseDataLazyQueryHookResult = ReturnType<typeof useGetCourseDataLazyQuery>;
 export type GetCourseDataSuspenseQueryHookResult = ReturnType<typeof useGetCourseDataSuspenseQuery>;
 export type GetCourseDataQueryResult = Apollo.QueryResult<GetCourseDataQuery, GetCourseDataQueryVariables>;
+export const GetCourseInfoDocument = gql`
+    query GetCourseInfo($slug: String!) {
+  getCourseData(slug: $slug) {
+    ...CourseInfo
+  }
+}
+    ${CourseInfoFragmentDoc}`;
+
+/**
+ * __useGetCourseInfoQuery__
+ *
+ * To run a query within a React component, call `useGetCourseInfoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCourseInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCourseInfoQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useGetCourseInfoQuery(baseOptions: Apollo.QueryHookOptions<GetCourseInfoQuery, GetCourseInfoQueryVariables> & ({ variables: GetCourseInfoQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCourseInfoQuery, GetCourseInfoQueryVariables>(GetCourseInfoDocument, options);
+      }
+export function useGetCourseInfoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCourseInfoQuery, GetCourseInfoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCourseInfoQuery, GetCourseInfoQueryVariables>(GetCourseInfoDocument, options);
+        }
+export function useGetCourseInfoSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCourseInfoQuery, GetCourseInfoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCourseInfoQuery, GetCourseInfoQueryVariables>(GetCourseInfoDocument, options);
+        }
+export type GetCourseInfoQueryHookResult = ReturnType<typeof useGetCourseInfoQuery>;
+export type GetCourseInfoLazyQueryHookResult = ReturnType<typeof useGetCourseInfoLazyQuery>;
+export type GetCourseInfoSuspenseQueryHookResult = ReturnType<typeof useGetCourseInfoSuspenseQuery>;
+export type GetCourseInfoQueryResult = Apollo.QueryResult<GetCourseInfoQuery, GetCourseInfoQueryVariables>;
 export const GetCoursesDocument = gql`
     query GetCourses {
   getCourses {
-    ...Course
+    ...CourseInfo
   }
 }
-    ${CourseFragmentDoc}`;
+    ${CourseInfoFragmentDoc}`;
 
 /**
  * __useGetCoursesQuery__
@@ -418,10 +474,10 @@ export type GetCoursesQueryResult = Apollo.QueryResult<GetCoursesQuery, GetCours
 export const GetPurchasedCoursesDocument = gql`
     query GetPurchasedCourses {
   getPurchasedCourses {
-    ...Course
+    ...CourseInfo
   }
 }
-    ${CourseFragmentDoc}`;
+    ${CourseInfoFragmentDoc}`;
 
 /**
  * __useGetPurchasedCoursesQuery__

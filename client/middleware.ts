@@ -11,13 +11,15 @@ export const middleware = async (request: NextRequest) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      query: 'query Me { me { id name email }}',
+      query: 'query Me { me { id }}',
     }),
   })
 
   const {
     data: { me },
   } = await res.json()
+
+  console.log(me)
 
   const isLoggedIn = !!me
 
@@ -29,5 +31,5 @@ export const middleware = async (request: NextRequest) => {
 }
 
 export const config = {
-  matcher: '/user/:path*',
+  matcher: ['/((?!api|_next/static|_next/image|login|register|favicon.ico|robots.txt|courses|user/confirm|$).*)'],
 }

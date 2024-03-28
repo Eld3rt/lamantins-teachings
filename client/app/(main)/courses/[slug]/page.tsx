@@ -1,7 +1,7 @@
 import { getClient } from '@/apollo/ApolloClient'
 import { notFound } from 'next/navigation'
 import PurchaseCourseButton from '@/app/components/buttons/PurchaseCourseButton'
-import { GetCourseDataDocument, GetCourseDataQuery } from '@/graphql/generated'
+import { GetCourseInfoDocument, GetCourseInfoQuery } from '@/graphql/generated'
 
 interface Props {
   params: { slug: string }
@@ -9,8 +9,8 @@ interface Props {
 
 const Page: React.FC<Props> = async ({ params }) => {
   const slug = params.slug
-  const { data } = await getClient().query<GetCourseDataQuery>({
-    query: GetCourseDataDocument,
+  const { data } = await getClient().query<GetCourseInfoQuery>({
+    query: GetCourseInfoDocument,
     variables: { slug },
   })
 

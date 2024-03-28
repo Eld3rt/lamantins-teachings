@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
-import course from '../fragments/course'
+import courseInfo from '../fragments/courseInfo'
 
 export default gql`
   mutation PurchaseCourse($courseId: Int!) {
     purchaseCourse(courseId: $courseId) {
       purchasedCourse {
-        ...Course
+        ...CourseInfo
       }
     }
-		${course}
+		${courseInfo}
   }
 `

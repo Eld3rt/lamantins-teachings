@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
-import course from '../fragments/course'
+import courseInfo from '../fragments/courseInfo'
 
 export default gql`
   query GetPurchasedCourses {
     getPurchasedCourses {
-      ...Course
+      ...CourseInfo
     }
-		${course}
+		${courseInfo}
   }
 `
