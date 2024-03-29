@@ -9,7 +9,14 @@ const SignOut: React.FC<Props> = () => {
   const client = useApolloClient()
 
   return (
-    <button className="btn" onClick={() => logout().then(() => client.resetStore())}>
+    <button
+      className="btn"
+      onClick={() =>
+        logout()
+          .then(() => client.resetStore())
+          .then(() => location.reload())
+      }
+    >
       Sign Out
     </button>
   )

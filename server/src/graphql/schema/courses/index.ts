@@ -54,7 +54,7 @@ export const resolvers: Resolvers = {
     getPurchasedCourses: async (_, __, context) => {
       const { currentUser, prisma } = context
 
-      if (!currentUser) throw new Error('User is not logged in')
+      if (!currentUser) return null
 
       const purchasedCourses = await getPurchasedCourses(currentUser, prisma)
 

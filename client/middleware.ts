@@ -19,11 +19,15 @@ export const middleware = async (request: NextRequest) => {
     data: { me },
   } = await res.json()
 
-  console.log(me)
-
   const isLoggedIn = !!me
 
   if (isLoggedIn) {
+    const isOnUserPath = request.nextUrl.pathname.endsWith('/user')
+
+    if (isOnUserPath) {
+      return NextResponse.redirect(new URL('/user/dashboard', request.url))
+    }
+
     return NextResponse.next()
   }
 
