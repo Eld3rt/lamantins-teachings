@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Form, Formik, FormikHelpers } from 'formik'
 import { ApolloError } from '@apollo/client'
 import { useSignUpMutation } from '@/graphql/generated'
 import { authValidation } from '@/utils/authValidation'
-import FormInput from '../forms/FormInput'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import FormInput from '../forms/FormInput'
 
 interface Props {}
 interface FormikValues {

@@ -42,6 +42,7 @@ export type Mutation = {
   purchaseCourse?: Maybe<PurchaseCourseResponse>;
   signIn?: Maybe<SignInResponse>;
   signUp?: Maybe<SignUpResponse>;
+  updateUserName?: Maybe<UpdateUserNameResponse>;
 };
 
 
@@ -61,6 +62,11 @@ export type MutationSignUpArgs = {
   name: Scalars['String']['input'];
   password: Scalars['String']['input'];
   path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateUserNameArgs = {
+  newName: Scalars['String']['input'];
 };
 
 export type PurchaseCourseResponse = {
@@ -103,18 +109,23 @@ export type SignUpResponse = {
   message: Scalars['String']['output'];
 };
 
+export type UpdateUserNameResponse = {
+  __typename?: 'UpdateUserNameResponse';
+  message: Scalars['String']['output'];
+};
+
 export type User = {
   __typename?: 'User';
   email: Scalars['String']['output'];
   id: Scalars['Int']['output'];
-  name: Scalars['String']['output'];
+  name?: Maybe<Scalars['String']['output']>;
 };
 
 export type CourseFragment = { __typename?: 'Course', id: number, name: string, slug?: string | null, lessons?: Array<{ __typename?: 'Lesson', id: number, name: string }> | null };
 
 export type CourseInfoFragment = { __typename?: 'Course', id: number, name: string, slug?: string | null };
 
-export type UserFragment = { __typename?: 'User', id: number, name: string, email: string };
+export type UserFragment = { __typename?: 'User', id: number, name?: string | null, email: string };
 
 export type PurchaseCourseMutationVariables = Exact<{
   courseId: Scalars['Int']['input'];
@@ -140,6 +151,13 @@ export type SignUpMutationVariables = Exact<{
 
 
 export type SignUpMutation = { __typename?: 'Mutation', signUp?: { __typename?: 'SignUpResponse', message: string } | null };
+
+export type UpdateUserNameMutationVariables = Exact<{
+  newName: Scalars['String']['input'];
+}>;
+
+
+export type UpdateUserNameMutation = { __typename?: 'Mutation', updateUserName?: { __typename?: 'UpdateUserNameResponse', message: string } | null };
 
 export type ConfirmAccountQueryVariables = Exact<{
   key: Scalars['String']['input'];
@@ -175,7 +193,7 @@ export type GetPurchasedCoursesQuery = { __typename?: 'Query', getPurchasedCours
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, name: string, email: string } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, name?: string | null, email: string } | null };
 
 export const CourseFragmentDoc = gql`
     fragment Course on Course {
@@ -238,7 +256,7 @@ export type PurchaseCourseMutationHookResult = ReturnType<typeof usePurchaseCour
 export type PurchaseCourseMutationResult = Apollo.MutationResult<PurchaseCourseMutation>;
 export type PurchaseCourseMutationOptions = Apollo.BaseMutationOptions<PurchaseCourseMutation, PurchaseCourseMutationVariables>;
 export const SignInDocument = gql`
-    mutation signIn($email: String!, $password: String!) {
+    mutation SignIn($email: String!, $password: String!) {
   signIn(email: $email, password: $password) {
     existingUser {
       email
@@ -309,8 +327,41 @@ export function useSignUpMutation(baseOptions?: Apollo.MutationHookOptions<SignU
 export type SignUpMutationHookResult = ReturnType<typeof useSignUpMutation>;
 export type SignUpMutationResult = Apollo.MutationResult<SignUpMutation>;
 export type SignUpMutationOptions = Apollo.BaseMutationOptions<SignUpMutation, SignUpMutationVariables>;
+export const UpdateUserNameDocument = gql`
+    mutation UpdateUserName($newName: String!) {
+  updateUserName(newName: $newName) {
+    message
+  }
+}
+    `;
+export type UpdateUserNameMutationFn = Apollo.MutationFunction<UpdateUserNameMutation, UpdateUserNameMutationVariables>;
+
+/**
+ * __useUpdateUserNameMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserNameMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserNameMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserNameMutation, { data, loading, error }] = useUpdateUserNameMutation({
+ *   variables: {
+ *      newName: // value for 'newName'
+ *   },
+ * });
+ */
+export function useUpdateUserNameMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserNameMutation, UpdateUserNameMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserNameMutation, UpdateUserNameMutationVariables>(UpdateUserNameDocument, options);
+      }
+export type UpdateUserNameMutationHookResult = ReturnType<typeof useUpdateUserNameMutation>;
+export type UpdateUserNameMutationResult = Apollo.MutationResult<UpdateUserNameMutation>;
+export type UpdateUserNameMutationOptions = Apollo.BaseMutationOptions<UpdateUserNameMutation, UpdateUserNameMutationVariables>;
 export const ConfirmAccountDocument = gql`
-    query confirmAccount($key: String!) {
+    query ConfirmAccount($key: String!) {
   confirmAccount(key: $key) {
     user {
       email

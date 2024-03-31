@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 export default gql`
-  query confirmAccount($key: String!) {
+  query ConfirmAccount($key: String!) {
     confirmAccount(key: $key) {
       user {
         email

@@ -11,6 +11,7 @@ import { getCachedUser } from '../../../utils/getCachedUser.js'
 import { getExistingUser } from '../../../utils/getExistingUser.js'
 import { getTransport } from '../../../nodemailer/transport.js'
 import { generateVerificationEmail } from '../../../nodemailer/verifyAccount.js'
+import { updateUserName } from '../../../utils/updateUserName.js'
 export const typeDefs = gql`
   extend type Query {
     me: User
@@ -20,6 +21,7 @@ export const typeDefs = gql`
   extend type Mutation {
     signUp(name: String!, email: String!, password: String!, path: String): SignUpResponse
     signIn(email: String!, password: String!): SignInResponse
+    updateUserName(newName: String!): UpdateUserNameResponse
   }
 
   type SignUpResponse {
@@ -35,9 +37,13 @@ export const typeDefs = gql`
     existingUser: User
   }
 
+  type UpdateUserNameResponse {
+    message: String!
+  }
+
   type User {
     id: Int!
-    name: String!
+    name: String
     email: String!
   }
 `
@@ -116,6 +122,14 @@ export const resolvers: Resolvers = {
         maxAge: 60 * 60 * 24 * 7 * 1000, // One week
       })
       return { existingUser }
+    },
+    updateUserName: async (_, args, context) => {
+      const { currentUser, prisma } = context
+
+      if (!currentUser) return null
+      await updateUserName(args, currentUser, prisma)
+
+      return { message: 'Saved!' }
     },
   },
 }
