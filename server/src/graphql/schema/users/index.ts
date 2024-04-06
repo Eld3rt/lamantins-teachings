@@ -88,19 +88,17 @@ export const resolvers: Resolvers = {
       return { user, path }
     },
     confirmEmail: async (_, args, context) => {
-      const { prisma, currentUser } = context
+      const { prisma } = context
 
-      if (!currentUser) return null
+      const updateObj = await getCachedEmail(args)
 
-      const cachedEmail = await getCachedEmail(args)
-
-      if (!cachedEmail) {
+      if (!updateObj) {
         throw new Error('Error getting cached user')
       }
 
-      const user = await updateEmail(cachedEmail, currentUser, prisma)
+      const user = await updateEmail(updateObj, prisma)
 
-      return { user, message: 'Saved!' }
+      return { user, message: 'Email successfully updated!' }
     },
   },
   Mutation: {
@@ -194,7 +192,9 @@ export const resolvers: Resolvers = {
 
       const key = uuidv4()
 
-      await createCachedEmail(args, key)
+      const userId = currentUser.id
+
+      await createCachedEmail(args, key, userId)
 
       const transport = await getTransport()
       const mailOptions = verifyEmail({

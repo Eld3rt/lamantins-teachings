@@ -1,28 +1,24 @@
 import { redis } from '../redis'
 import { QueryConfirmAccountArgs, RequireFields } from '../../graphql/types/resolvers-types'
+import { update } from 'lodash'
 
 export const getCachedEmail = async (args: RequireFields<QueryConfirmAccountArgs, 'key'>) => {
   const { key } = args
 
-  const redisResult = await redis.multi().hgetall(key).exec()
+  const updateObj = (await redis.hgetall(key)) as { email: string; id: string }
 
-  if (!redisResult) {
+  if (!updateObj) {
     return null
   }
 
-  if (redisResult[0][0]) {
-    throw redisResult[0][0]
-  }
-
-  const result = redisResult[0][1] as { email: string }
-
-  const cachedEmail = result.email
-
-  if (!cachedEmail) {
+  if (!updateObj.email || !updateObj.id) {
     return null
   }
 
   await redis.del(key)
 
-  return cachedEmail
+  return {
+    email: updateObj.email,
+    id: parseInt(updateObj.id),
+  }
 }

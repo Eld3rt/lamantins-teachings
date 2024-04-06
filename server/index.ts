@@ -28,20 +28,15 @@ app.use(
     context: async ({ req, res }) => {
       const authToken: string = req.cookies.sid || ''
 
-      console.log(authToken)
-
       let currentUser = null
       if (authToken) {
         const userId = await getCachedSession(authToken)
 
         if (userId) {
-          console.log(userId)
           currentUser = await prisma.user.findFirst({
             where: { id: userId },
           })
         }
-
-        console.log(currentUser)
       }
       return { currentUser, res, prisma }
     },
