@@ -4,32 +4,32 @@ import { useState } from 'react'
 import { Form, Formik } from 'formik'
 import { ApolloError } from '@apollo/client'
 import * as Yup from 'yup'
-import { useUpdateUserNameMutation } from '@/graphql/generated'
+import { useUpdateEmailMutation } from '@/graphql/generated'
 import FormInput from '../forms/FormInput'
 
 interface Props {
-  currentName?: string | null
+  currentEmail: string
 }
 interface FormikValues {
-  name: string
+  email: string
 }
 
-const UpdateUserName: React.FC<Props> = ({ currentName }) => {
-  const [updateUserName] = useUpdateUserNameMutation({
+const UpdateEmail: React.FC<Props> = ({ currentEmail }) => {
+  const [updateEmail] = useUpdateEmailMutation({
     notifyOnNetworkStatusChange: true,
   })
   const [errMsg, setErrMsg] = useState<string | undefined>()
   const [statusMsg, setStatusMsg] = useState<string | undefined>()
 
   const handleSubmit = async (values: FormikValues) => {
-    const { name } = { ...values }
+    const { email } = { ...values }
     try {
-      const { data } = await updateUserName({
+      const { data } = await updateEmail({
         variables: {
-          newName: name,
+          email: email,
         },
       })
-      setStatusMsg(data?.updateUserName?.message)
+      setStatusMsg(data?.updateEmail?.message)
       console.log(statusMsg)
     } catch (error) {
       setErrMsg((error as ApolloError).message)
@@ -38,13 +38,15 @@ const UpdateUserName: React.FC<Props> = ({ currentName }) => {
 
   return (
     <Formik
-      initialValues={{ name: currentName || '' }}
-      validationSchema={Yup.object({ name: Yup.string().max(200, 'Name too long') })}
+      initialValues={{ email: currentEmail }}
+      validationSchema={Yup.object({
+        email: Yup.string().required('Email is required').email('Invalid email').max(200, 'Email too long'),
+      })}
       onSubmit={handleSubmit}
     >
       <div className="loginForm">
         <Form>
-          <FormInput name="name" type="text" label="Name" />
+          <FormInput name="email" type="text" label="Name" />
 
           <button className="btn" type="submit">
             Save
@@ -56,4 +58,4 @@ const UpdateUserName: React.FC<Props> = ({ currentName }) => {
   )
 }
 
-export default UpdateUserName
+export default UpdateEmail

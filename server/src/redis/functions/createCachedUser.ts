@@ -1,9 +1,8 @@
 import { hash } from 'bcrypt'
-import { redis } from '../redis/redis'
-import { MutationSignUpArgs, RequireFields } from '../graphql/types/resolvers-types'
+import { redis } from '../redis'
 
 export const createCachedUser = async (
-  args: RequireFields<MutationSignUpArgs, 'email' | 'name' | 'password'>,
+  args: { name?: string; email: string; password: string; path?: string },
   key: string
 ) => {
   const { name, email, password, path } = args

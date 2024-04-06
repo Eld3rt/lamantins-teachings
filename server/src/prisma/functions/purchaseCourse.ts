@@ -1,23 +1,28 @@
 import { PrismaClient, User, Course } from '@prisma/client'
-import { MutationPurchaseCourseArgs, RequireFields } from '../graphql/types/resolvers-types'
+import { MutationPurchaseCourseArgs, RequireFields } from '../../graphql/types/resolvers-types'
 
-export const getPurchasedCourse = async (
+export const purchaseCourse = async (
   args: RequireFields<MutationPurchaseCourseArgs, 'courseId'>,
   currentUser: User,
   prisma: PrismaClient
-): Promise<Course | null> => {
+): Promise<Course> => {
   const { courseId } = args
   const userId = currentUser.id
-  const existingPurchasedCourse = await prisma.course.findFirst({
+  const purchasedCourse = await prisma.course.update({
     where: {
       id: courseId,
+    },
+    data: {
       users: {
-        some: {
+        connect: {
           id: userId,
         },
       },
     },
+    include: {
+      lessons: true,
+    },
   })
 
-  return existingPurchasedCourse
+  return purchasedCourse
 }

@@ -1,5 +1,5 @@
 import { PrismaClient, Course } from '@prisma/client'
-import { QueryGetCourseDataArgs, RequireFields } from '../graphql/types/resolvers-types'
+import { QueryGetCourseDataArgs, RequireFields } from '../../graphql/types/resolvers-types'
 
 export const getCourseData = async (
   args: RequireFields<QueryGetCourseDataArgs, 'slug'>,

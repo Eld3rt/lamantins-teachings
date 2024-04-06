@@ -1,10 +1,10 @@
 import gql from 'graphql-tag'
 import { Resolvers } from '../../types/resolvers-types'
-import { getPurchasedCourse } from '../../../utils/getPurchasedCourse'
-import { purchaseCourse } from '../../../utils/purchaseCourse'
-import { getCourses } from '../../../utils/getCourses'
-import { getCourseData } from '../../../utils/getCourseData'
-import { getPurchasedCourses } from '../../../utils/getPurchasedCourses'
+import { getPurchasedCourse } from '../../../prisma/functions/getPurchasedCourse'
+import { purchaseCourse } from '../../../prisma/functions/purchaseCourse'
+import { getCourses } from '../../../prisma/functions/getCourses'
+import { getCourseData } from '../../../prisma/functions/getCourseData'
+import { getPurchasedCourses } from '../../../prisma/functions/getPurchasedCourses'
 
 export const typeDefs = gql`
   extend type Query {
