@@ -37,40 +37,36 @@ export const typeDefs = gql`
 
 export const resolvers: Resolvers = {
   Query: {
-    getCourses: async (_, __, context) => {
-      const { prisma } = context
-
-      const courses = await getCourses(prisma)
+    getCourses: async (_, __, ___) => {
+      const courses = await getCourses()
 
       return courses
     },
-    getCourseData: async (_, args, context) => {
-      const { prisma } = context
-
-      const course = await getCourseData(args, prisma)
+    getCourseData: async (_, args, __) => {
+      const course = await getCourseData(args)
 
       return course
     },
     getPurchasedCourses: async (_, __, context) => {
-      const { currentUser, prisma } = context
+      const { currentUser } = context
 
       if (!currentUser) return null
 
-      const purchasedCourses = await getPurchasedCourses(currentUser, prisma)
+      const purchasedCourses = await getPurchasedCourses(currentUser)
 
       return purchasedCourses
     },
   },
   Mutation: {
     purchaseCourse: async (_, args, context) => {
-      const { currentUser, prisma } = context
+      const { currentUser } = context
 
       if (!currentUser) return null
 
-      const existingPurchasedCourse = await getPurchasedCourse(args, currentUser, prisma)
+      const existingPurchasedCourse = await getPurchasedCourse(args, currentUser)
       if (existingPurchasedCourse) throw new Error('User has already successfully purchased the course.')
 
-      const purchasedCourse = await purchaseCourse(args, currentUser, prisma)
+      const purchasedCourse = await purchaseCourse(args, currentUser)
       return { purchasedCourse }
     },
   },

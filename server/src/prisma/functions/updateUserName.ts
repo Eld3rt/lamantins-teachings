@@ -1,10 +1,10 @@
-import { PrismaClient, User } from '@prisma/client'
+import { User } from '@prisma/client'
 import { MutationUpdateUserNameArgs, RequireFields } from '../../graphql/types/resolvers-types'
+import { prisma } from '../prisma'
 
 export const updateUserName = async (
   args: RequireFields<MutationUpdateUserNameArgs, 'newName'>,
-  currentUser: User,
-  prisma: PrismaClient
+  currentUser: User
 ): Promise<User> => {
   const { newName } = args
   const { id } = currentUser

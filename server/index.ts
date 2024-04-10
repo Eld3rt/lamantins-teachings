@@ -39,7 +39,7 @@ app.use(
           })
         }
       }
-      return { currentUser, res, authToken, prisma, redis }
+      return { currentUser, res, authToken }
     },
   })
 )

@@ -78,44 +78,38 @@ export const resolvers: Resolvers = {
       const { currentUser } = context
       return currentUser || null
     },
-    confirmAccount: async (_, args, context) => {
-      const { prisma } = context
-
+    confirmAccount: async (_, args, __) => {
       const cachedUser = await getCachedUser(args)
 
       if (!cachedUser) {
         throw new Error('Error getting cached user')
       }
 
-      const user = await createUser(cachedUser, prisma)
+      const user = await createUser(cachedUser)
 
       const path = cachedUser.path
 
       return { user, path }
     },
-    confirmEmail: async (_, args, context) => {
-      const { prisma } = context
-
+    confirmEmail: async (_, args, __) => {
       const updateObj = await getCachedEmail(args)
 
       if (!updateObj) {
         throw new Error('Error getting cached user')
       }
 
-      const user = await updateEmail(updateObj, prisma)
+      const user = await updateEmail(updateObj)
 
       return { user, message: 'Email successfully updated!' }
     },
   },
   Mutation: {
-    signUp: async (_, args, context) => {
+    signUp: async (_, args, __) => {
       const { name, email } = args
-
-      const { prisma } = context
 
       await authValidation.validate(args)
 
-      const existingUser = await getExistingUser(args, prisma)
+      const existingUser = await getExistingUser(args)
       if (existingUser !== null) {
         throw new Error('Email already taken!')
       }
@@ -141,11 +135,11 @@ export const resolvers: Resolvers = {
     },
     signIn: async (_, args, context) => {
       const { password } = args
-      const { res, prisma } = context
+      const { res } = context
 
       await authValidation.validate(args)
 
-      const existingUser = await getExistingUser(args, prisma)
+      const existingUser = await getExistingUser(args)
 
       const passwordMatch = await compare(password, (existingUser?.passhash as string) || '')
 
@@ -179,7 +173,7 @@ export const resolvers: Resolvers = {
       return { message: 'Success sign out.' }
     },
     updateUserName: async (_, args, context) => {
-      const { currentUser, prisma } = context
+      const { currentUser } = context
 
       if (!currentUser) return null
 
@@ -187,13 +181,13 @@ export const resolvers: Resolvers = {
         name: Yup.string().max(200, 'Name too long'),
       }).validate(args)
 
-      await updateUserName(args, currentUser, prisma)
+      await updateUserName(args, currentUser)
 
       return { message: 'Saved!' }
     },
     updateEmail: async (_, args, context) => {
       const { email } = args
-      const { currentUser, prisma } = context
+      const { currentUser } = context
 
       if (!currentUser) return null
 
@@ -201,7 +195,7 @@ export const resolvers: Resolvers = {
         email: Yup.string().required('Email is required').email('Invalid email').max(200, 'Email too long'),
       }).validate(args)
 
-      const existingUser = await getExistingUser(args, prisma)
+      const existingUser = await getExistingUser(args)
 
       if (existingUser !== null) {
         throw new Error('Email already taken!')
