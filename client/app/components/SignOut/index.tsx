@@ -1,25 +1,10 @@
 'use client'
 
-import { useApolloClient } from '@apollo/client'
-import { logout } from '@/utils/logout'
-
+import SignOutButton from '@/app/components/buttons/SignOutButton'
 interface Props {}
 
 const SignOut: React.FC<Props> = () => {
-  const client = useApolloClient()
-
-  return (
-    <button
-      className="btn"
-      onClick={() =>
-        logout()
-          .then(() => client.resetStore())
-          .then(() => location.reload())
-      }
-    >
-      Sign Out
-    </button>
-  )
+  return <SignOutButton />
 }
 
 export default SignOut

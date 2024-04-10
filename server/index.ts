@@ -3,6 +3,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { server } from './src/apollo/server'
 import { prisma } from './src/prisma/prisma'
+import { redis } from './src/redis/redis'
 import { expressMiddleware } from '@apollo/server/express4'
 import { getCachedSession } from './src/redis/functions/getCachedSession'
 
@@ -38,7 +39,7 @@ app.use(
           })
         }
       }
-      return { currentUser, res, prisma }
+      return { currentUser, res, authToken, prisma, redis }
     },
   })
 )

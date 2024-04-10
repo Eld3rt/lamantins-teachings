@@ -49,6 +49,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   purchaseCourse?: Maybe<PurchaseCourseResponse>;
   signIn?: Maybe<SignInResponse>;
+  signOut?: Maybe<SignOutResponse>;
   signUp?: Maybe<SignUpResponse>;
   updateEmail?: Maybe<UpdateEmailResponse>;
   updateUserName?: Maybe<UpdateUserNameResponse>;
@@ -122,6 +123,11 @@ export type QueryGetLessonArgs = {
 export type SignInResponse = {
   __typename?: 'SignInResponse';
   existingUser?: Maybe<User>;
+};
+
+export type SignOutResponse = {
+  __typename?: 'SignOutResponse';
+  message: Scalars['String']['output'];
 };
 
 export type SignUpResponse = {
@@ -228,6 +234,7 @@ export type ResolversTypes = ResolversObject<{
   PurchaseCourseResponse: ResolverTypeWrapper<Omit<PurchaseCourseResponse, 'purchasedCourse'> & { purchasedCourse: ResolversTypes['Course'] }>;
   Query: ResolverTypeWrapper<{}>;
   SignInResponse: ResolverTypeWrapper<Omit<SignInResponse, 'existingUser'> & { existingUser?: Maybe<ResolversTypes['User']> }>;
+  SignOutResponse: ResolverTypeWrapper<SignOutResponse>;
   SignUpResponse: ResolverTypeWrapper<SignUpResponse>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   UpdateEmailResponse: ResolverTypeWrapper<UpdateEmailResponse>;
@@ -247,6 +254,7 @@ export type ResolversParentTypes = ResolversObject<{
   PurchaseCourseResponse: Omit<PurchaseCourseResponse, 'purchasedCourse'> & { purchasedCourse: ResolversParentTypes['Course'] };
   Query: {};
   SignInResponse: Omit<SignInResponse, 'existingUser'> & { existingUser?: Maybe<ResolversParentTypes['User']> };
+  SignOutResponse: SignOutResponse;
   SignUpResponse: SignUpResponse;
   String: Scalars['String']['output'];
   UpdateEmailResponse: UpdateEmailResponse;
@@ -283,6 +291,7 @@ export type LessonResolvers<ContextType = MyContext, ParentType extends Resolver
 export type MutationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   purchaseCourse?: Resolver<Maybe<ResolversTypes['PurchaseCourseResponse']>, ParentType, ContextType, RequireFields<MutationPurchaseCourseArgs, 'courseId'>>;
   signIn?: Resolver<Maybe<ResolversTypes['SignInResponse']>, ParentType, ContextType, RequireFields<MutationSignInArgs, 'email' | 'password'>>;
+  signOut?: Resolver<Maybe<ResolversTypes['SignOutResponse']>, ParentType, ContextType>;
   signUp?: Resolver<Maybe<ResolversTypes['SignUpResponse']>, ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'name' | 'password'>>;
   updateEmail?: Resolver<Maybe<ResolversTypes['UpdateEmailResponse']>, ParentType, ContextType, RequireFields<MutationUpdateEmailArgs, 'email'>>;
   updateUserName?: Resolver<Maybe<ResolversTypes['UpdateUserNameResponse']>, ParentType, ContextType, RequireFields<MutationUpdateUserNameArgs, 'newName'>>;
@@ -305,6 +314,11 @@ export type QueryResolvers<ContextType = MyContext, ParentType extends Resolvers
 
 export type SignInResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['SignInResponse'] = ResolversParentTypes['SignInResponse']> = ResolversObject<{
   existingUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SignOutResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['SignOutResponse'] = ResolversParentTypes['SignOutResponse']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -339,6 +353,7 @@ export type Resolvers<ContextType = MyContext> = ResolversObject<{
   PurchaseCourseResponse?: PurchaseCourseResponseResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   SignInResponse?: SignInResponseResolvers<ContextType>;
+  SignOutResponse?: SignOutResponseResolvers<ContextType>;
   SignUpResponse?: SignUpResponseResolvers<ContextType>;
   UpdateEmailResponse?: UpdateEmailResponseResolvers<ContextType>;
   UpdateUserNameResponse?: UpdateUserNameResponseResolvers<ContextType>;

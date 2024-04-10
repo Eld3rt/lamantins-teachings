@@ -2,6 +2,6 @@
 
 import { cookies } from 'next/headers'
 
-export const logout = async () => {
+export const clearCookie = async () => {
   cookies().delete('sid')
 }

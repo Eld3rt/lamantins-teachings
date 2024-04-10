@@ -17,6 +17,7 @@ import { updateEmail } from '../../../prisma/functions/updateEmail.js'
 import { createCachedEmail } from '../../../redis/functions/createCachedEmail.js'
 import { getCachedEmail } from '../../../redis/functions/getCachedEmail.js'
 import { createCachedSession } from '../../../redis/functions/createCachedSession.js'
+import { deleteCachedSession } from '../../../redis/functions/deleteCachedSession.js'
 const crypto = await import('node:crypto')
 
 export const typeDefs = gql`
@@ -29,6 +30,7 @@ export const typeDefs = gql`
   extend type Mutation {
     signUp(name: String!, email: String!, password: String!, path: String): SignUpResponse
     signIn(email: String!, password: String!): SignInResponse
+    signOut: SignOutResponse
     updateUserName(newName: String!): UpdateUserNameResponse
     updateEmail(email: String!): UpdateEmailResponse
   }
@@ -50,6 +52,10 @@ export const typeDefs = gql`
 
   type SignInResponse {
     existingUser: User
+  }
+
+  type SignOutResponse {
+    message: String!
   }
 
   type UpdateUserNameResponse {
@@ -134,7 +140,7 @@ export const resolvers: Resolvers = {
       }
     },
     signIn: async (_, args, context) => {
-      const { email, password } = args
+      const { password } = args
       const { res, prisma } = context
 
       await authValidation.validate(args)
@@ -153,13 +159,24 @@ export const resolvers: Resolvers = {
 
       await createCachedSession(userId, sessionToken)
 
-      // const secret = process.env.JWT_SECRET || 'lt.secret'
-      // const authToken = jsonwebtoken.sign(email, secret)
       res.cookie('sid', sessionToken, {
         maxAge: 60 * 60 * 24 * 7 * 1000, // One week
       })
 
       return { existingUser }
+    },
+    signOut: async (_, __, context) => {
+      const { currentUser, authToken } = context
+
+      if (!currentUser) {
+        return null
+      }
+
+      const { id } = currentUser
+
+      await deleteCachedSession(id, authToken)
+
+      return { message: 'Success sign out.' }
     },
     updateUserName: async (_, args, context) => {
       const { currentUser, prisma } = context
