@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
-import SignOut from '../SignOut'
 import { getCurrentUser } from '@/utils/getCurrentUser'
+import SignOutButton from '../buttons/SignOutButton'
 
 interface Props {}
 
@@ -23,7 +23,7 @@ const Header: React.FC<Props> = async () => {
               <Link href="/login">Sign In</Link>
             </li>
           ) : (
-            <SignOut />
+            <SignOutButton />
           )}
         </ul>
       </nav>

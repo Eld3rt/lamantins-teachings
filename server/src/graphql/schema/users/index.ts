@@ -18,6 +18,7 @@ import { createCachedEmail } from '../../../redis/functions/createCachedEmail.js
 import { getCachedEmail } from '../../../redis/functions/getCachedEmail.js'
 import { createCachedSession } from '../../../redis/functions/createCachedSession.js'
 import { deleteCachedSession } from '../../../redis/functions/deleteCachedSession.js'
+import { updatePassword } from '../../../prisma/functions/updatePassword.js'
 const crypto = await import('node:crypto')
 
 export const typeDefs = gql`
@@ -33,6 +34,7 @@ export const typeDefs = gql`
     signOut: SignOutResponse
     updateUserName(newName: String!): UpdateUserNameResponse
     updateEmail(email: String!): UpdateEmailResponse
+    updatePassword(oldPassword: String!, newPassword: String!): UpdatePasswordResponse
   }
 
   type User {
@@ -68,6 +70,10 @@ export const typeDefs = gql`
 
   type ConfirmEmailResponse {
     user: User
+    message: String!
+  }
+
+  type UpdatePasswordResponse {
     message: String!
   }
 `
@@ -177,8 +183,8 @@ export const resolvers: Resolvers = {
 
       if (!currentUser) return null
 
-      Yup.object({
-        name: Yup.string().max(200, 'Name too long'),
+      await Yup.object({
+        newName: Yup.string().max(200, 'Name too long'),
       }).validate(args)
 
       await updateUserName(args, currentUser)
@@ -191,8 +197,8 @@ export const resolvers: Resolvers = {
 
       if (!currentUser) return null
 
-      Yup.object({
-        email: Yup.string().required('Email is required').email('Invalid email').max(200, 'Email too long'),
+      await Yup.object({
+        email: Yup.string().email('Invalid email').max(200, 'Email too long'),
       }).validate(args)
 
       const existingUser = await getExistingUser(args)
@@ -220,6 +226,28 @@ export const resolvers: Resolvers = {
 
       return {
         message: `Check your email (${email}) for instructions on how to change your current email.`,
+      }
+    },
+    updatePassword: async (_, args, context) => {
+      const { oldPassword, newPassword } = args
+      const { currentUser } = context
+
+      if (!currentUser) return null
+
+      await Yup.object({
+        newPassword: Yup.string().min(6, 'Password too short').max(200, 'Password too long'),
+      }).validate(args)
+
+      const passwordMatch = await compare(oldPassword, (currentUser.passhash as string) || '')
+
+      if (!passwordMatch) {
+        throw new Error('Incorrect old password')
+      }
+
+      await updatePassword(newPassword, currentUser)
+
+      return {
+        message: 'Saved!',
       }
     },
   },

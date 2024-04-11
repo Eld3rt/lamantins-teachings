@@ -52,6 +52,7 @@ export type Mutation = {
   signOut?: Maybe<SignOutResponse>;
   signUp?: Maybe<SignUpResponse>;
   updateEmail?: Maybe<UpdateEmailResponse>;
+  updatePassword?: Maybe<UpdatePasswordResponse>;
   updateUserName?: Maybe<UpdateUserNameResponse>;
 };
 
@@ -77,6 +78,12 @@ export type MutationSignUpArgs = {
 
 export type MutationUpdateEmailArgs = {
   email: Scalars['String']['input'];
+};
+
+
+export type MutationUpdatePasswordArgs = {
+  newPassword: Scalars['String']['input'];
+  oldPassword: Scalars['String']['input'];
 };
 
 
@@ -137,6 +144,11 @@ export type SignUpResponse = {
 
 export type UpdateEmailResponse = {
   __typename?: 'UpdateEmailResponse';
+  message: Scalars['String']['output'];
+};
+
+export type UpdatePasswordResponse = {
+  __typename?: 'UpdatePasswordResponse';
   message: Scalars['String']['output'];
 };
 
@@ -238,6 +250,7 @@ export type ResolversTypes = ResolversObject<{
   SignUpResponse: ResolverTypeWrapper<SignUpResponse>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   UpdateEmailResponse: ResolverTypeWrapper<UpdateEmailResponse>;
+  UpdatePasswordResponse: ResolverTypeWrapper<UpdatePasswordResponse>;
   UpdateUserNameResponse: ResolverTypeWrapper<UpdateUserNameResponse>;
   User: ResolverTypeWrapper<UserModel>;
 }>;
@@ -258,6 +271,7 @@ export type ResolversParentTypes = ResolversObject<{
   SignUpResponse: SignUpResponse;
   String: Scalars['String']['output'];
   UpdateEmailResponse: UpdateEmailResponse;
+  UpdatePasswordResponse: UpdatePasswordResponse;
   UpdateUserNameResponse: UpdateUserNameResponse;
   User: UserModel;
 }>;
@@ -294,6 +308,7 @@ export type MutationResolvers<ContextType = MyContext, ParentType extends Resolv
   signOut?: Resolver<Maybe<ResolversTypes['SignOutResponse']>, ParentType, ContextType>;
   signUp?: Resolver<Maybe<ResolversTypes['SignUpResponse']>, ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'name' | 'password'>>;
   updateEmail?: Resolver<Maybe<ResolversTypes['UpdateEmailResponse']>, ParentType, ContextType, RequireFields<MutationUpdateEmailArgs, 'email'>>;
+  updatePassword?: Resolver<Maybe<ResolversTypes['UpdatePasswordResponse']>, ParentType, ContextType, RequireFields<MutationUpdatePasswordArgs, 'newPassword' | 'oldPassword'>>;
   updateUserName?: Resolver<Maybe<ResolversTypes['UpdateUserNameResponse']>, ParentType, ContextType, RequireFields<MutationUpdateUserNameArgs, 'newName'>>;
 }>;
 
@@ -332,6 +347,11 @@ export type UpdateEmailResponseResolvers<ContextType = MyContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type UpdatePasswordResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['UpdatePasswordResponse'] = ResolversParentTypes['UpdatePasswordResponse']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type UpdateUserNameResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['UpdateUserNameResponse'] = ResolversParentTypes['UpdateUserNameResponse']> = ResolversObject<{
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -356,6 +376,7 @@ export type Resolvers<ContextType = MyContext> = ResolversObject<{
   SignOutResponse?: SignOutResponseResolvers<ContextType>;
   SignUpResponse?: SignUpResponseResolvers<ContextType>;
   UpdateEmailResponse?: UpdateEmailResponseResolvers<ContextType>;
+  UpdatePasswordResponse?: UpdatePasswordResponseResolvers<ContextType>;
   UpdateUserNameResponse?: UpdateUserNameResponseResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 }>;
