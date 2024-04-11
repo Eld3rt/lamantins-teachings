@@ -1,6 +1,5 @@
 import { redis } from '../redis'
 import { QueryConfirmAccountArgs, RequireFields } from '../../graphql/types/resolvers-types'
-import { update } from 'lodash'
 
 export const getCachedEmail = async (args: RequireFields<QueryConfirmAccountArgs, 'key'>) => {
   const { key } = args

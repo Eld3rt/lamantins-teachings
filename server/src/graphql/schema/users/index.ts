@@ -19,6 +19,9 @@ import { getCachedEmail } from '../../../redis/functions/getCachedEmail.js'
 import { createCachedSession } from '../../../redis/functions/createCachedSession.js'
 import { deleteCachedSession } from '../../../redis/functions/deleteCachedSession.js'
 import { updatePassword } from '../../../prisma/functions/updatePassword.js'
+import { createCachedReset } from '../../../redis/functions/createCachedReset.js'
+import { verifyPassword } from '../../../nodemailer/verifyPassword.js'
+import { getCachedReset } from '../../../redis/functions/getCachedReset.js'
 const crypto = await import('node:crypto')
 
 export const typeDefs = gql`
@@ -35,6 +38,8 @@ export const typeDefs = gql`
     updateUserName(newName: String!): UpdateUserNameResponse
     updateEmail(email: String!): UpdateEmailResponse
     updatePassword(oldPassword: String!, newPassword: String!): UpdatePasswordResponse
+    resetPassword(email: String!): ResetPasswordResponse
+    confirmPassword(key: String!, password: String!): ConfirmPasswordResponse
   }
 
   type User {
@@ -74,6 +79,14 @@ export const typeDefs = gql`
   }
 
   type UpdatePasswordResponse {
+    message: String!
+  }
+
+  type ResetPasswordResponse {
+    message: String!
+  }
+
+  type ConfirmPasswordResponse {
     message: String!
   }
 `
@@ -243,11 +256,58 @@ export const resolvers: Resolvers = {
       if (!passwordMatch) {
         throw new Error('Incorrect old password')
       }
-
-      await updatePassword(newPassword, currentUser)
+      const userId = currentUser.id
+      await updatePassword(newPassword, userId)
 
       return {
         message: 'Saved!',
+      }
+    },
+    resetPassword: async (_, args, __) => {
+      await Yup.object({
+        email: Yup.string().email('Invalid email'),
+      }).validate(args)
+
+      const existingUser = await getExistingUser(args)
+
+      if (!existingUser) {
+        throw new Error('User is not exist')
+      }
+
+      const userId = existingUser.id
+
+      const key = uuidv4()
+
+      await createCachedReset(key, userId)
+
+      const transport = await getTransport()
+      const mailOptions = verifyPassword({
+        name: existingUser.name,
+        email: existingUser.email,
+        uuid: key,
+      })
+      transport.sendMail(mailOptions).then(info => {
+        console.log(`Message id: ${info.messageId}`)
+        console.log(`URL: ${nodemailer.getTestMessageUrl(info)}`)
+      })
+      return {
+        message: `Check your email for instructions on how to reset your password.`,
+      }
+    },
+    confirmPassword: async (_, args, __) => {
+      const { key, password } = args
+      await Yup.object({
+        password: Yup.string().min(6, 'Password too short').max(200, 'Password too long'),
+      }).validate(args)
+
+      const userId = await getCachedReset(key)
+
+      if (!userId) return null
+
+      await updatePassword(password, userId)
+
+      return {
+        message: 'New password saved!',
       }
     },
   },

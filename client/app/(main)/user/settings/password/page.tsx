@@ -1,4 +1,4 @@
-import UpdatePassword from '@/app/components/updatePassword'
+import UpdatePassword from '@/app/components/UpdatePassword'
 
 interface Props {}
 
